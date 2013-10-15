@@ -7,7 +7,6 @@
 #include <string>
 #include <utility>
 #include <limits>
-#include <type_traits>
 
 #if defined(GLWRAP_ENABLE_ASSERTS) && !defined(GLWRAP_ASSERT_CALLBACK)
 #ifdef assert
