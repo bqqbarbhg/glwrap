@@ -64,7 +64,8 @@ public: \
 	OClassName(OClassName&& o) : ClassName(std::move(o)) { o.m_handle = 0; } \
 	void swap(OClassName& o) { ClassName::swap(o); } \
 	OClassName& operator=(OClassName o) { swap(o); return *this; } \
-	~OClassName() { \
+	~OClassName() \
+	{ \
 		free(); \
 	} \
 private: \
@@ -80,7 +81,8 @@ public: \
 	OClassName(OClassName&& o) : ClassName(std::move(o)) { o.m_handle = 0; } \
 	void swap(OClassName& o) { ClassName::swap(o); } \
 	OClassName& operator=(OClassName o) { swap(o); return *this; } \
-	~OClassName() { \
+	~OClassName() \
+	{ \
 		free(); \
 	} \
 private: \
@@ -112,13 +114,14 @@ public:
 		return *this;
 	}
 	GLuint get() const { return m_handle; }
+	bool initialized() const { return m_handle != 0; }
+
 	GLuint releaseHandle()
 	{
 		GLuint handle = m_handle;
 		m_handle = 0;
 		return handle;
 	}
-	bool initialized() const { return m_handle != 0; }
 protected:
 	GLuint m_handle;
 };
@@ -234,13 +237,15 @@ public:
 		: m_target(target)
 	{ }
 
-	int getWidth() const {
+	int getWidth() const
+	{
 		GLWRAP_CHECK_ACTIVE(GL_TEXTURE_BINDING_2D, m_target == GL_TEXTURE_2D);
 		int w;
 		glGetTexLevelParameteriv(m_target, 0, GL_TEXTURE_WIDTH, &w);
 		return w;
 	}
-	int getHeight() const {
+	int getHeight() const
+	{
 		GLWRAP_CHECK_ACTIVE(GL_TEXTURE_BINDING_2D, m_target == GL_TEXTURE_2D);
 		int h;
 		glGetTexLevelParameteriv(m_target, 0, GL_TEXTURE_WIDTH, &h);
@@ -324,18 +329,23 @@ public:
 			m_handle = 0;
 		}
 	}
-	ActiveTexture bind(GLenum target=GL_TEXTURE_2D) const {
+
+	ActiveTexture bind(GLenum target=GL_TEXTURE_2D) const
+	{
 		GLWRAP_ASSERT(m_handle != 0, "Texture is initialized");
 		glBindTexture(target, m_handle);
 		return GLWRAP_ATTACH_HANDLE(ActiveTexture(target), m_handle);
 	}
-	static void unbind(GLenum target=GL_TEXTURE_2D) {
+	static void unbind(GLenum target=GL_TEXTURE_2D)
+	{
 		glBindTexture(target, 0);
 	}
-	static void enable() {
+	static void enable()
+	{
 		glEnable(GL_TEXTURE);
 	}
-	static void disable() {
+	static void disable()
+	{
 		glDisable(GL_TEXTURE);
 	}
 
@@ -364,14 +374,17 @@ public:
 	ActiveTexture3D(GLenum target)
 		: ActiveTexture(target)
 	{ }
-	int getWidth() const {
+	int getWidth() const
+	{
 		GLWRAP_CHECK_ACTIVE(GL_TEXTURE_BINDING_3D, m_target == GL_TEXTURE_3D);
 		return ActiveTexture::getWidth();
 	}
-	int getHeight() const {
+	int getHeight() const
+	{
 		GLWRAP_CHECK_ACTIVE(GL_TEXTURE_BINDING_3D, m_target == GL_TEXTURE_3D);
 		return ActiveTexture::getHeight();
 	}
+
 	void setFilter(const Filter& filter)
 	{
 		GLWRAP_CHECK_ACTIVE(GL_TEXTURE_BINDING_3D, m_target == GL_TEXTURE_3D);
@@ -431,15 +444,18 @@ public:
 		return *this;
 	}
 
-	ActiveTexture bind(GLenum target=GL_TEXTURE_3D) const {
+	ActiveTexture bind(GLenum target=GL_TEXTURE_3D) const
+	{
 		Texture::bind(target);
 		return GLWRAP_ATTACH_HANDLE(ActiveTexture3D(target), m_handle);
 	}
-	static void unbind(GLenum target=GL_TEXTURE_3D) {
+	static void unbind(GLenum target=GL_TEXTURE_3D)
+	{
 		Texture::unbind(target);
 	}
 
-	static Texture3D create() {
+	static Texture3D create()
+	{
 		Texture3D t;
 		t.gen();
 		return t;
@@ -539,7 +555,8 @@ public:
 		glGenSamplers(1, &m_handle);
 	}
 
-	static Sampler create() {
+	static Sampler create()
+	{
 		Sampler s;
 		s.gen();
 		return s;
@@ -594,7 +611,8 @@ struct BlendState
 	{ }
 																				#endif//GLWRAP_NO_BLEND_SEPARATE
 
-	void apply() const {
+	void apply() const
+	{
 		// If one of blend components is empty the other one must be
 		GLWRAP_ASSERT((src != GL_NONE) == (dst != GL_NONE), "Source and destination are both defined or undefined");
 																				#ifndef GLWRAP_NO_BLEND_SEPARATE
@@ -695,12 +713,14 @@ public:
 		, pointer(pointer)
 	{ }
 
-	void enable() const {
+	void enable() const
+	{
 		GLWRAP_ASSERT(size != -1, "VertexAttribPointer is initialized");
 		glEnableVertexAttribArray(index);
 		glVertexAttribPointer(index, size, type, normalized, stride, pointer);
 	}
-	void disable() const {
+	void disable() const 
+	{
 		GLWRAP_ASSERT(size != -1, "VertexAttribPointer is initialized");
 		glDisableVertexAttribArray(index);
 	}
@@ -821,7 +841,8 @@ public:
 		return str;
 	}
 
-	static Shader create(GLenum type) {
+	static Shader create(GLenum type)
+	{
 		return Shader(glCreateShader(type));
 	}
 };
@@ -891,17 +912,20 @@ public:
 			m_handle = 0;
 		}
 	}
+
 	void attachShader(Shader shader)
 	{
 		GLWRAP_ASSERT(m_handle != 0, "Program is initialized");
 		GLWRAP_ASSERT(shader.initialized(), "Shader to attach is initialized");
 		glAttachShader(m_handle, shader.get());
 	}
-	void link() {
+	void link()
+	{
 		glLinkProgram(m_handle);
 	}
 
-	ActiveProgram use() const {
+	ActiveProgram use() const
+	{
 		GLWRAP_ASSERT(m_handle != 0, "Program is initialized");
 		GLWRAP_ASSERT(getParam(GL_LINK_STATUS) == GL_TRUE, "Program is linked succesfully");
 		glUseProgram(m_handle);
@@ -1125,7 +1149,8 @@ public:
 		return m_target;
 	}
 
-	static TBuffer create(GLenum target) {
+	static TBuffer create(GLenum target)
+	{
 		TBuffer buf(target);
 		buf.gen();
 		return buf;
