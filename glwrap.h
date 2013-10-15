@@ -222,9 +222,9 @@ public:
 		, max_anisotropy(0)
 																				#endif//GLWRAP_FILTER_NO_ANISOTROPIC
 	{ }
-	Filter(GLenum min, GLenum mag,
+	Filter(GLenum min, GLenum mag
 																				#ifndef GLWRAP_FILTER_NO_ANISOTROPIC
-		GLint max_anisotropy=0
+		, GLint max_anisotropy=0
 																				#endif//GLWRAP_FILTER_NO_ANISOTROPIC
 		)
 		: min(min), mag(mag)
@@ -1405,7 +1405,7 @@ public:
 		GLWRAP_ASSERT(texture.initialized(), "Texture is initialized");
 		glFramebufferTexture(m_target, attachment, texture.get(), level);
 	}
-	void texture2D(GLenum attachment, Texture texture, ActiveTexture textarget, GLint level=0)
+	void texture2D(GLenum attachment, ActiveTexture textarget, Texture texture, GLint level=0)
 	{
 		GLWRAP_CHECK_ACTIVE(GL_FRAMEBUFFER_BINDING, m_target == GL_FRAMEBUFFER);
 		GLWRAP_ASSERT(texture.initialized(), "Texture is initialized");
