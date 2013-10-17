@@ -53,6 +53,16 @@ namespace gw
 
 #endif
 
+#ifndef GLWRAP_NO_MOVE
+
+#define GLWRAP_MOVE(x) x
+
+#else
+
+#define GLWRAP_MOVE(x)
+
+#endif
+
 #define GLWRAP_MAKE_OCLASS_BEGIN(OClassName, ClassName) \
 class OClassName : public ClassName \
 { \
@@ -60,7 +70,7 @@ public: \
 	OClassName() : ClassName() { } \
 	OClassName(ClassName c) : ClassName(c) { } \
 	OClassName(GLuint handle) : ClassName(handle) { } \
-	OClassName(OClassName&& o) : ClassName(std::move(o)) { o.m_handle = 0; } \
+	GLWRAP_MOVE(OClassName(OClassName&& o) : ClassName(std::move(o)) { o.m_handle = 0; }) \
 	void swap(OClassName& o) { ClassName::swap(o); } \
 	OClassName& operator=(OClassName o) { swap(o); return *this; } \
 	~OClassName() \
@@ -77,7 +87,7 @@ class OClassName : public ClassName \
 public: \
 	OClassName() : ClassName() { } \
 	OClassName(ClassName c) : ClassName(c) { } \
-	OClassName(OClassName&& o) : ClassName(std::move(o)) { o.m_handle = 0; } \
+	GLWRAP_MOVE(OClassName(OClassName&& o) : ClassName(std::move(o)) { o.m_handle = 0; }) \
 	void swap(OClassName& o) { ClassName::swap(o); } \
 	OClassName& operator=(OClassName o) { swap(o); return *this; } \
 	~OClassName() \
@@ -1712,9 +1722,6 @@ public:
 	{
 		GLWRAP_TYPECHECK(glIsRenderbuffer, handle);
 	}
-	Renderbuffer(Renderbuffer&& f)
-		: Handle(std::move(f))
-	{ }
 	void swap(Renderbuffer& f)
 	{
 		Handle::swap(f);
@@ -1828,9 +1835,6 @@ public:
 	{
 		GLWRAP_TYPECHECK(glIsFramebuffer, handle);
 	}
-	Framebuffer(Framebuffer&& f)
-		: Handle(std::move(f))
-	{ }
 	void swap(Framebuffer& f)
 	{
 		Handle::swap(f);
@@ -1972,6 +1976,7 @@ inline void drawElements(GLenum mode, GLsizei count, IndexBuffer indexBuffer, GL
 #undef GLWRAP_ENUM_ALLOW
 #undef GLWRAP_ENUM_END
 #undef GLWRAP_ENUM_ASSERT
+#undef GLWRAP_MOVE
 #ifdef GLWRAP_OLD_ASSERT_DEFINE
 #define assert GLWRAP_OLD_ASSERT_DEFINE
 #undef GLWRAP_OLD_ASSERT_DEFINE
