@@ -1710,7 +1710,7 @@ public:
 	explicit Renderbuffer(GLuint handle)
 		: Handle(handle)
 	{
-		GLWRAP_TYPECHECK(glIsFramebuffer, handle);
+		GLWRAP_TYPECHECK(glIsRenderbuffer, handle);
 	}
 	Renderbuffer(Renderbuffer&& f)
 		: Handle(std::move(f))
