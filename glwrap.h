@@ -329,7 +329,7 @@ enum EnumFramebufferTarget
 	FRAMEBUFFER = GL_FRAMEBUFFER,
 };
 
-enum EnumColorAttachment
+enum EnumFramebufferAttachment
 {
 	COLOR_ATTACHMENT0 = GL_COLOR_ATTACHMENT0,
 	DEPTH_ATTACHMENT = GL_DEPTH_ATTACHMENT,
@@ -450,12 +450,8 @@ GLWRAP_ENUM_BEGIN(FramebufferTarget)
 GLWRAP_ENUM_ALLOW(FramebufferTarget, EnumFramebufferTarget)
 GLWRAP_ENUM_END()
 
-GLWRAP_ENUM_BEGIN(RenderbufferAttachment)
-GLWRAP_ENUM_ALLOW(RenderbufferAttachment, EnumRenderbuffer)
-GLWRAP_ENUM_END()
-
-GLWRAP_ENUM_BEGIN(ColorAttachment)
-GLWRAP_ENUM_ALLOW(ColorAttachment, EnumColorAttachment)
+GLWRAP_ENUM_BEGIN(FramebufferAttachment)
+GLWRAP_ENUM_ALLOW(FramebufferAttachment, EnumFramebufferAttachment)
 GLWRAP_ENUM_END()
 
 // --------
@@ -1775,13 +1771,13 @@ public:
 		: TActiveHandle(target)
 	{ }
 
-	void texture(ColorAttachment attachment, Texture texture, GLint level=0)
+	void texture(FramebufferAttachment attachment, Texture texture, GLint level=0)
 	{
 		GLWRAP_CHECK_ACTIVE(GL_FRAMEBUFFER_BINDING, m_target == GL_FRAMEBUFFER);
 		GLWRAP_ASSERT(texture.initialized(), "Texture is initialized");
 		glFramebufferTexture(m_target, attachment, texture.get(), level);
 	}
-	void texture2D(ColorAttachment attachment, ActiveTexture textarget, Texture texture, GLint level=0)
+	void texture2D(FramebufferAttachment attachment, ActiveTexture textarget, Texture texture, GLint level=0)
 	{
 		GLWRAP_CHECK_ACTIVE(GL_FRAMEBUFFER_BINDING, m_target == GL_FRAMEBUFFER);
 		GLWRAP_ASSERT(texture.initialized(), "Texture is initialized");
@@ -1793,7 +1789,7 @@ public:
 		glFramebufferTexture2D(m_target, attachment, textarget.getTarget(), texture.get(), level);
 	}
 
-	void renderbuffer(RenderbufferAttachment attachment, ActiveRenderbuffer renderbuffertarget, Renderbuffer renderbuffer)
+	void renderbuffer(FramebufferAttachment attachment, ActiveRenderbuffer renderbuffertarget, Renderbuffer renderbuffer)
 	{
 		GLWRAP_CHECK_ACTIVE(GL_FRAMEBUFFER_BINDING, m_target == GL_FRAMEBUFFER);
 		GLWRAP_ASSERT(renderbuffer.initialized(), "Renderbuffer is initialized");
@@ -1803,11 +1799,6 @@ public:
 			GLWRAP_ASSERT(renderbuffertarget.isActive(GL_RENDERBUFFER_BINDING), "Bound texture is active");
 																				#endif//GLWRAP_ENABLE_ACTIVECHECK
 		glFramebufferRenderbuffer(m_target, attachment, renderbuffertarget.getTarget(), renderbuffer.get());
-	}
-
-	void renderbuffer(ActiveRenderbuffer renderbuffertarget, Renderbuffer renderbuffer)
-	{
-		this->renderbuffer(GL_RENDERBUFFER, renderbuffertarget, renderbuffer);
 	}
 
 	GLenum checkStatus()
