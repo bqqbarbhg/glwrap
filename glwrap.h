@@ -1169,7 +1169,7 @@ public:
 	NamedVertexAttribPointer()
 		: VertexAttribPointer()
 	{ }
-	NamedVertexAttribPointer(GLuint index, GLint size, AttribType type, bool normalized, GLsizei stride, GLvoid *pointer, std::string name)
+	NamedVertexAttribPointer(GLuint index, GLint size, AttribType type, GLboolean normalized, GLsizei stride, GLvoid *pointer, std::string name)
 		: VertexAttribPointer(index, size, type, normalized, stride, pointer)
 		, name(std::move(name))
 	{ }
