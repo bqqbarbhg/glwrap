@@ -2,11 +2,10 @@
 #define _INCLUDED_DISTR_GLWRAP_H
 
 #include <utility>
-#include <vector>
 #include <cstdint>
 #include <string>
-#include <utility>
 #include <limits>
+#include <type_traits>
 
 #if defined(GLWRAP_ENABLE_ASSERTS) && !defined(GLWRAP_ASSERT_CALLBACK)
 #ifdef assert
@@ -90,6 +89,374 @@ private: \
 public:
 
 #define GLWRAP_MAKE_OCLASS_END() };
+
+// -------
+// | Enums
+// -------
+
+#ifndef GLWRAP_NO_ENUMS
+
+enum EnumShaderType
+{
+	VERTEX_SHADER = GL_VERTEX_SHADER,
+	FRAGMENT_SHADER = GL_FRAGMENT_SHADER,
+	GEOMETRY_SHADER = GL_GEOMETRY_SHADER,
+};
+
+enum EnumTextureBuffer
+{
+	TEXTURE_BUFFER = GL_TEXTURE_BUFFER,
+};
+
+enum EnumTextureTarget
+{
+	TEXTURE_1D = GL_TEXTURE_1D,
+	TEXTURE_2D = GL_TEXTURE_2D,
+	TEXTURE_3D = GL_TEXTURE_3D,
+	TEXTURE_1D_ARRAY = GL_TEXTURE_1D_ARRAY,
+	TEXTURE_2D_ARRAY = GL_TEXTURE_2D_ARRAY,
+	TEXTURE_RECTANGLE = GL_TEXTURE_RECTANGLE,
+	TEXTURE_CUBE_MAP = GL_TEXTURE_CUBE_MAP,
+	TEXTURE_2D_MULTISAMPLE = GL_TEXTURE_2D_MULTISAMPLE,
+	TEXTURE_2D_MULTISAMPLE_ARRAY = GL_TEXTURE_2D_MULTISAMPLE_ARRAY,
+};
+
+enum EnumUnsignedType
+{
+	UNSIGNED_BYTE = GL_UNSIGNED_BYTE,
+	UNSIGNED_SHORT = GL_UNSIGNED_SHORT,
+	UNSIGNED_INT = GL_UNSIGNED_INT,
+};
+enum EnumSignedType
+{
+	BYTE = GL_BYTE,
+	SHORT = GL_SHORT,
+	INT = GL_INT,
+};
+enum EnumFloat
+{
+	FLOAT = GL_FLOAT,
+};
+enum EnumDouble
+{
+	DOUBLE = GL_DOUBLE,
+};
+enum EnumHalfFloat
+{
+	HALF_FLOAT = GL_HALF_FLOAT,
+};
+enum Enum2101010RevInt
+{
+	INT_2_10_10_10_REV = GL_INT_2_10_10_10_REV,
+};
+enum Enum2101010RevUInt
+{
+	UNSIGNED_INT_2_10_10_10_REV = GL_UNSIGNED_INT_2_10_10_10_REV,
+};
+enum EnumPixelFormat
+{
+	RED = GL_RED,
+	RG = GL_RG,
+	RGB = GL_RGB,
+	RGBA = GL_RGBA,
+};
+enum EnumInvPixelFormat
+{
+	BGR = GL_BGR,
+	BGRA = GL_BGRA,
+};
+enum EnumDepthFormat
+{
+	DEPTH_COMPONENT = GL_DEPTH_COMPONENT,
+	DEPTH_STENCIL = GL_DEPTH_STENCIL,
+};
+enum EnumSizedPixelFormat
+{
+	R8 = GL_R8,
+	RG8 = GL_RG8,
+	RGB8 = GL_RGB8,
+	RGBA8 = GL_RGBA8,
+};
+enum EnumPixelType
+{
+	UNSIGNED_BYTE_3_3_2 = GL_UNSIGNED_BYTE_3_3_2,
+	UNSIGNED_BYTE_2_3_3_REV = GL_UNSIGNED_BYTE_2_3_3_REV,
+	UNSIGNED_SHORT_5_6_5 = GL_UNSIGNED_SHORT_5_6_5,
+	UNSIGNED_SHORT_5_6_5_REV = GL_UNSIGNED_SHORT_5_6_5_REV,
+	UNSIGNED_SHORT_4_4_4_4 = GL_UNSIGNED_SHORT_4_4_4_4,
+	UNSIGNED_SHORT_4_4_4_4_REV = GL_UNSIGNED_SHORT_4_4_4_4_REV,
+	UNSIGNED_SHORT_5_5_5_1 = GL_UNSIGNED_SHORT_5_5_5_1,
+	UNSIGNED_SHORT_1_5_5_5_REV = GL_UNSIGNED_SHORT_1_5_5_5_REV,
+	UNSIGNED_INT_8_8_8_8 = GL_UNSIGNED_INT_8_8_8_8,
+	UNSIGNED_INT_8_8_8_8_REV = GL_UNSIGNED_INT_8_8_8_8_REV,
+	UNSIGNED_INT_10_10_10_2 = GL_UNSIGNED_INT_10_10_10_2,
+};
+
+enum EnumRenderMode
+{
+	POINTS = GL_POINTS,
+	LINE_STRIP = GL_LINE_STRIP,
+	LINE_LOOP = GL_LINE_LOOP,
+	LINES = GL_LINES,
+	LINE_STRIP_ADJACENCY = GL_LINE_STRIP_ADJACENCY,
+	LINES_ADJACENCY = GL_LINES_ADJACENCY,
+	TRIANGLE_STRIP = GL_TRIANGLE_STRIP,
+	TRIANGLE_FAN = GL_TRIANGLE_FAN,
+	TRIANGLES = GL_TRIANGLES,
+	TRIANGLE_STRIP_ADJACENCY = GL_TRIANGLE_STRIP_ADJACENCY,
+	TRIANGLES_ADJACENCY = GL_TRIANGLES_ADJACENCY,
+};
+
+enum EnumMagFilterMode
+{
+	NEAREST = GL_NEAREST,
+	LINEAR = GL_LINEAR,
+};
+
+enum EnumMinFilterMode
+{
+	NEAREST_MIPMAP_NEAREST = GL_NEAREST_MIPMAP_NEAREST,
+	NEAREST_MIPMAP_LINEAR = GL_NEAREST_MIPMAP_LINEAR,
+	LINEAR_MIPMAP_NEAREST = GL_LINEAR_MIPMAP_NEAREST,
+	LINEAR_MIPMAP_LINEAR = GL_LINEAR_MIPMAP_LINEAR,
+};
+
+enum EnumWrapMode
+{
+	CLAMP_TO_EDGE = GL_CLAMP_TO_EDGE,
+	CLAMP_TO_BORDER = GL_CLAMP_TO_BORDER,
+	MIRRORED_REPEAT = GL_MIRRORED_REPEAT,
+	REPEAT = GL_REPEAT,
+};
+
+enum EnumBlendFactor
+{
+	ZERO = GL_ZERO,
+	ONE = GL_ONE,
+	SRC_COLOR = GL_SRC_COLOR,
+	ONE_MINUS_SRC_COLOR = GL_ONE_MINUS_SRC_COLOR,
+	DST_COLOR = GL_DST_COLOR,
+	ONE_MINUS_DST_COLOR = GL_ONE_MINUS_DST_COLOR,
+	SRC_ALPHA = GL_SRC_ALPHA,
+	ONE_MINUS_SRC_ALPHA = GL_ONE_MINUS_SRC_ALPHA,
+	DST_ALPHA = GL_DST_ALPHA,
+	ONE_MINUS_DST_ALPHA = GL_ONE_MINUS_DST_ALPHA,
+	CONSTANT_COLOR = GL_CONSTANT_COLOR,
+	ONE_MINUS_CONSTANT_COLOR = GL_ONE_MINUS_CONSTANT_COLOR,
+	CONSTANT_ALPHA = GL_CONSTANT_ALPHA,
+	ONE_MINUS_CONSTANT_ALPHA = GL_ONE_MINUS_CONSTANT_ALPHA,
+};
+
+enum EnumBlendEquation
+{
+	FUNC_ADD = GL_FUNC_ADD,
+	FUNC_SUBTRACT = GL_FUNC_SUBTRACT,
+	FUNC_REVERSE_SUBTRACT = GL_FUNC_REVERSE_SUBTRACT,
+	MIN = GL_MIN,
+	MAX = GL_MAX,
+};
+
+enum EnumDeleteStatus
+{
+	DELETE_STATUS = GL_DELETE_STATUS,
+};
+
+enum EnumInfoLogLength
+{
+	INFO_LOG_LENGTH = GL_INFO_LOG_LENGTH,
+};
+
+enum EnumShaderParamName
+{
+	SHADER_TYPE = GL_SHADER_TYPE,
+	COMPILE_STATUS = GL_COMPILE_STATUS,
+	SHADER_SOURCE_LENGTH = GL_SHADER_SOURCE_LENGTH,
+};
+
+enum EnumProgramParamName
+{
+	LINK_STATUS = GL_LINK_STATUS,
+	VALIDATE_STATUS = GL_VALIDATE_STATUS,
+	ATTACHED_SHADERS = GL_ATTACHED_SHADERS,
+	ACTIVE_ATTRIBUTES = GL_ACTIVE_ATTRIBUTES,
+	ACTIVE_ATTRIBUTE_MAX_LENGTH = GL_ACTIVE_ATTRIBUTE_MAX_LENGTH,
+	ACTIVE_UNIFORMS = GL_ACTIVE_UNIFORMS,
+	ACTIVE_UNIFORM_BLOCKS = GL_ACTIVE_UNIFORM_BLOCKS,
+	ACTIVE_UNIFORM_BLOCK_MAX_NAME_LENGTH = GL_ACTIVE_UNIFORM_BLOCK_MAX_NAME_LENGTH,
+	ACTIVE_UNIFORM_MAX_LENGTH = GL_ACTIVE_UNIFORM_MAX_LENGTH,
+	TRANSFORM_FEEDBACK_BUFFER_MODE = GL_TRANSFORM_FEEDBACK_BUFFER_MODE,
+	TRANSFORM_FEEDBACK_VARYINGS = GL_TRANSFORM_FEEDBACK_VARYINGS,
+	TRANSFORM_FEEDBACK_VARYING_MAX_LENGTH = GL_TRANSFORM_FEEDBACK_VARYING_MAX_LENGTH,
+	GEOMETRY_VERTICES_OUT = GL_GEOMETRY_VERTICES_OUT,
+	GEOMETRY_INPUT_TYPE = GL_GEOMETRY_INPUT_TYPE,
+	GEOMETRY_OUTPUT_TYPE = GL_GEOMETRY_OUTPUT_TYPE,
+};
+
+enum EnumBufferUsage
+{
+	STREAM_DRAW = GL_STREAM_DRAW,
+	STREAM_READ = GL_STREAM_READ,
+	STREAM_COPY = GL_STREAM_COPY,
+	STATIC_DRAW = GL_STATIC_DRAW,
+	STATIC_READ = GL_STATIC_READ,
+	STATIC_COPY = GL_STATIC_COPY,
+	DYNAMIC_DRAW = GL_DYNAMIC_DRAW,
+	DYNAMIC_READ = GL_DYNAMIC_READ,
+	DYNAMIC_COPY = GL_DYNAMIC_COPY,
+};
+
+enum EnumBufferTarget
+{
+	ARRAY_BUFFER = GL_ARRAY_BUFFER,
+	COPY_READ_BUFFER = GL_COPY_READ_BUFFER,
+	COPY_WRITE_BUFFER = GL_COPY_WRITE_BUFFER,
+	ELEMENT_ARRAY_BUFFER = GL_ELEMENT_ARRAY_BUFFER,
+	PIXEL_PACK_BUFFER = GL_PIXEL_PACK_BUFFER,
+	PIXEL_UNPACK_BUFFER = GL_PIXEL_UNPACK_BUFFER,
+	TRANSFORM_FEEDBACK_BUFFER = GL_TRANSFORM_FEEDBACK_BUFFER,
+	UNIFORM_BUFFER = GL_UNIFORM_BUFFER,
+};
+
+enum EnumRenderbuffer
+{
+	RENDERBUFFER = GL_RENDERBUFFER,
+};
+
+enum EnumFramebufferTarget
+{
+	DRAW_FRAMEBUFFER = GL_DRAW_FRAMEBUFFER,
+	READ_FRAMEBUFFER = GL_READ_FRAMEBUFFER,
+	FRAMEBUFFER = GL_FRAMEBUFFER,
+};
+
+enum EnumColorAttachment
+{
+	COLOR_ATTACHMENT0 = GL_COLOR_ATTACHMENT0,
+	DEPTH_ATTACHMENT = GL_DEPTH_ATTACHMENT,
+	STENCIL_ATTACHMENT = GL_STENCIL_ATTACHMENT,
+	DEPTH_STENCIL_ATTACHMENT = GL_DEPTH_STENCIL_ATTACHMENT,
+};
+
+#define GLWRAP_ENUM_BEGIN(ClassName) class ClassName { private: GLenum m_value; \
+public: \
+	operator GLenum() const { return m_value; } \
+	ClassName() : m_value(GL_NONE) { } \
+	template <typename T> \
+	ClassName(T t, typename std::enable_if<!std::is_enum<T>::value,int>::type=0) : m_value((GLenum)t) { }
+#define GLWRAP_ENUM_ALLOW(ClassName, EnumName) public: ClassName(EnumName e) : m_value((GLenum)e) { }
+#define GLWRAP_ENUM_END() };
+
+#else //GLWRAP_NO_ENUMS
+
+#define GLWRAP_ENUM_BEGIN(name) typedef GLenum name;
+#define GLWRAP_ENUM_ALLOW(c, e)
+#define GLWRAP_ENUM_END()
+
+#endif//GLWRAP_NO_ENUMS
+
+GLWRAP_ENUM_BEGIN(ShaderType)
+GLWRAP_ENUM_ALLOW(ShaderType, EnumShaderType)
+GLWRAP_ENUM_END()
+
+GLWRAP_ENUM_BEGIN(RenderMode)
+GLWRAP_ENUM_ALLOW(RenderMode, EnumRenderMode)
+GLWRAP_ENUM_END()
+
+GLWRAP_ENUM_BEGIN(IndexType)
+GLWRAP_ENUM_ALLOW(IndexType, EnumUnsignedType)
+GLWRAP_ENUM_END()
+
+GLWRAP_ENUM_BEGIN(MinFilterMode)
+GLWRAP_ENUM_ALLOW(MinFilterMode, EnumMagFilterMode)
+GLWRAP_ENUM_ALLOW(MinFilterMode, EnumMinFilterMode)
+GLWRAP_ENUM_END()
+
+GLWRAP_ENUM_BEGIN(MagFilterMode)
+GLWRAP_ENUM_ALLOW(MagFilterMode, EnumMagFilterMode)
+GLWRAP_ENUM_END()
+
+GLWRAP_ENUM_BEGIN(WrapMode)
+GLWRAP_ENUM_ALLOW(WrapMode, EnumWrapMode)
+GLWRAP_ENUM_END()
+
+GLWRAP_ENUM_BEGIN(PixelType)
+GLWRAP_ENUM_ALLOW(PixelType, EnumUnsignedType)
+GLWRAP_ENUM_ALLOW(PixelType, EnumSignedType)
+GLWRAP_ENUM_ALLOW(PixelType, EnumFloat)
+GLWRAP_ENUM_ALLOW(PixelType, EnumPixelType)
+GLWRAP_ENUM_ALLOW(PixelType, Enum2101010RevUInt)
+GLWRAP_ENUM_END()
+
+GLWRAP_ENUM_BEGIN(PixelFormat)
+GLWRAP_ENUM_ALLOW(PixelFormat, EnumPixelFormat)
+GLWRAP_ENUM_ALLOW(PixelFormat, EnumInvPixelFormat)
+GLWRAP_ENUM_END()
+
+GLWRAP_ENUM_BEGIN(InternalFormat)
+GLWRAP_ENUM_ALLOW(InternalFormat, EnumPixelFormat)
+GLWRAP_ENUM_ALLOW(InternalFormat, EnumDepthFormat)
+GLWRAP_ENUM_ALLOW(InternalFormat, EnumSizedPixelFormat)
+GLWRAP_ENUM_END()
+
+GLWRAP_ENUM_BEGIN(TextureTarget)
+GLWRAP_ENUM_ALLOW(TextureTarget, EnumTextureTarget)
+GLWRAP_ENUM_ALLOW(TextureTarget, EnumTextureBuffer)
+GLWRAP_ENUM_END()
+
+GLWRAP_ENUM_BEGIN(BlendFactor)
+GLWRAP_ENUM_ALLOW(BlendFactor, EnumBlendFactor)
+GLWRAP_ENUM_END()
+
+GLWRAP_ENUM_BEGIN(BlendEquation)
+GLWRAP_ENUM_ALLOW(BlendEquation, EnumBlendEquation)
+GLWRAP_ENUM_END()
+
+GLWRAP_ENUM_BEGIN(AttribType)
+GLWRAP_ENUM_ALLOW(AttribType, EnumSignedType)
+GLWRAP_ENUM_ALLOW(AttribType, EnumUnsignedType)
+GLWRAP_ENUM_ALLOW(AttribType, EnumFloat)
+GLWRAP_ENUM_ALLOW(AttribType, EnumDouble)
+GLWRAP_ENUM_ALLOW(AttribType, EnumHalfFloat)
+GLWRAP_ENUM_ALLOW(AttribType, Enum2101010RevInt)
+GLWRAP_ENUM_ALLOW(AttribType, Enum2101010RevUInt)
+GLWRAP_ENUM_END()
+
+GLWRAP_ENUM_BEGIN(ShaderParamName)
+GLWRAP_ENUM_ALLOW(ShaderParamName, EnumShaderParamName)
+GLWRAP_ENUM_ALLOW(ShaderParamName, EnumDeleteStatus)
+GLWRAP_ENUM_ALLOW(ShaderParamName, EnumInfoLogLength)
+GLWRAP_ENUM_END()
+
+GLWRAP_ENUM_BEGIN(ProgramParamName)
+GLWRAP_ENUM_ALLOW(ProgramParamName, EnumProgramParamName)
+GLWRAP_ENUM_ALLOW(ProgramParamName, EnumDeleteStatus)
+GLWRAP_ENUM_ALLOW(ProgramParamName, EnumInfoLogLength)
+GLWRAP_ENUM_END()
+
+GLWRAP_ENUM_BEGIN(BufferUsage)
+GLWRAP_ENUM_ALLOW(BufferUsage, EnumBufferUsage)
+GLWRAP_ENUM_END()
+
+GLWRAP_ENUM_BEGIN(BufferTarget)
+GLWRAP_ENUM_ALLOW(BufferTarget, EnumBufferTarget)
+GLWRAP_ENUM_ALLOW(BufferTarget, EnumTextureBuffer)
+GLWRAP_ENUM_END()
+
+GLWRAP_ENUM_BEGIN(RenderbufferTarget)
+GLWRAP_ENUM_ALLOW(RenderbufferTarget, EnumRenderbuffer)
+GLWRAP_ENUM_END()
+
+GLWRAP_ENUM_BEGIN(FramebufferTarget)
+GLWRAP_ENUM_ALLOW(FramebufferTarget, EnumFramebufferTarget)
+GLWRAP_ENUM_END()
+
+GLWRAP_ENUM_BEGIN(RenderbufferAttachment)
+GLWRAP_ENUM_ALLOW(RenderbufferAttachment, EnumRenderbuffer)
+GLWRAP_ENUM_END()
+
+GLWRAP_ENUM_BEGIN(ColorAttachment)
+GLWRAP_ENUM_ALLOW(ColorAttachment, EnumColorAttachment)
+GLWRAP_ENUM_END()
 
 // --------
 // | Handle
@@ -194,11 +561,11 @@ public:
 	Wrap()
 		: s(GL_NONE), t(GL_NONE), r(GL_NONE)
 	{ }
-	Wrap(GLenum s, GLenum t, GLenum r=GL_NONE)
+	Wrap(WrapMode s, WrapMode t, WrapMode r=GL_NONE)
 		: s(s), t(t), r(r)
 	{ }
 
-	GLenum s, t, r;
+	WrapMode s, t, r;
 
 	static const Wrap Clamp;
 	static const Wrap Repeat;
@@ -222,7 +589,7 @@ public:
 		, max_anisotropy(0)
 																				#endif//GLWRAP_FILTER_NO_ANISOTROPIC
 	{ }
-	Filter(GLenum min, GLenum mag
+	Filter(MinFilterMode min, MagFilterMode mag
 																				#ifndef GLWRAP_FILTER_NO_ANISOTROPIC
 		, GLint max_anisotropy=0
 																				#endif//GLWRAP_FILTER_NO_ANISOTROPIC
@@ -233,7 +600,8 @@ public:
 																				#endif//GLWRAP_FILTER_NO_ANISOTROPIC
 	{ }
 
-	GLenum min, mag;
+	MinFilterMode min;
+	MagFilterMode mag;
 																				#ifndef GLWRAP_FILTER_NO_ANISOTROPIC
 	GLint max_anisotropy;
 																				#endif//GLWRAP_FILTER_NO_ANISOTROPIC
@@ -258,7 +626,7 @@ const Filter Filter::Trilinear(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 class ActiveTexture : public TActiveHandle
 {
 public:
-	explicit ActiveTexture(GLenum target=GL_TEXTURE_2D)
+	explicit ActiveTexture(TextureTarget target=GL_TEXTURE_2D)
 		: TActiveHandle(target)
 	{ }
 
@@ -317,7 +685,7 @@ public:
 		return wrap;
 	}
 
-	void image2D(GLint level, GLint internalformat, GLint width, GLint height, GLint border, GLenum format, GLenum type, GLvoid* pixels)
+	void image2D(GLint level, InternalFormat internalformat, GLint width, GLint height, GLint border, PixelFormat format, PixelType type, GLvoid* pixels)
 	{
 		GLWRAP_CHECK_ACTIVE(GL_TEXTURE_BINDING_2D, m_target == GL_TEXTURE_2D);
 		glTexImage2D(m_target, level, internalformat, width, height, border, format, type, pixels);
@@ -363,13 +731,13 @@ public:
 		}
 	}
 
-	ActiveTexture bind(GLenum target=GL_TEXTURE_2D) const
+	ActiveTexture bind(TextureTarget target=GL_TEXTURE_2D) const
 	{
 		GLWRAP_ASSERT(m_handle != 0, "Texture is initialized");
 		glBindTexture(target, m_handle);
 		return GLWRAP_ATTACH_HANDLE(ActiveTexture(target), m_handle);
 	}
-	static void unbind(GLenum target=GL_TEXTURE_2D)
+	static void unbind(TextureTarget target=GL_TEXTURE_2D)
 	{
 		glBindTexture(target, 0);
 	}
@@ -404,7 +772,7 @@ GLWRAP_MAKE_OCLASS_END();
 class ActiveTexture3D : public ActiveTexture
 {
 public:
-	ActiveTexture3D(GLenum target=GL_TEXTURE_3D)
+	ActiveTexture3D(TextureTarget target=GL_TEXTURE_3D)
 		: ActiveTexture(target)
 	{ }
 	int getWidth() const
@@ -482,12 +850,12 @@ public:
 		return *this;
 	}
 
-	ActiveTexture bind(GLenum target=GL_TEXTURE_3D) const
+	ActiveTexture bind(TextureTarget target=GL_TEXTURE_3D) const
 	{
 		Texture::bind(target);
 		return GLWRAP_ATTACH_HANDLE(ActiveTexture3D(target), m_handle);
 	}
-	static void unbind(GLenum target=GL_TEXTURE_3D)
+	static void unbind(TextureTarget target=GL_TEXTURE_3D)
 	{
 		Texture::unbind(target);
 	}
@@ -625,13 +993,13 @@ GLWRAP_MAKE_OCLASS_END();
 
 																				#endif//GLWRAP_NO_SAMPLER
 
-// -------------
-// | Blend State
-// -------------
+// -------
+// | Blend
+// -------
 
-struct BlendState
+struct Blend
 {
-	BlendState()
+	Blend()
 		: src(GL_NONE), dst(GL_NONE)
 																				#ifndef GLWRAP_NO_BLEND_SEPARATE
 		, alphaSrc(GL_NONE), alphaDst(GL_NONE)
@@ -643,9 +1011,9 @@ struct BlendState
 																				#endif//GLWRAP_NO_BLEND_SEPARATE
 																				#endif//GLWRAP_NO_BLEND_MODE
 	{ }
-	BlendState(GLenum src, GLenum dst
+	Blend(BlendFactor src, BlendFactor dst
 																				#ifndef GLWRAP_NO_BLEND_MODE
-		, GLenum mode=GL_FUNC_ADD
+		, BlendEquation mode=GL_FUNC_ADD
 																				#endif//GLWRAP_NO_BLEND_MODE
 		)
 		: src(src), dst(dst)
@@ -656,9 +1024,9 @@ struct BlendState
 	{ }
 
 																				#ifndef GLWRAP_NO_BLEND_SEPARATE
-	BlendState(GLenum src, GLenum dst, GLenum alphaSrc, GLenum alphaDst
+	Blend(BlendFactor src, BlendFactor dst, BlendFactor alphaSrc, BlendFactor alphaDst
 																				#ifndef GLWRAP_NO_BLEND_MODE
-		, GLenum mode=GL_FUNC_ADD, GLenum alphaMode=GL_FUNC_ADD
+		, BlendEquation mode=GL_FUNC_ADD, BlendEquation alphaMode=GL_FUNC_ADD
 																				#endif//GLWRAP_NO_BLEND_MODE
 		)
 		: src(src), dst(dst)
@@ -701,27 +1069,27 @@ struct BlendState
 		}
 	}
 
-	GLenum src, dst;
+	BlendFactor src, dst;
 																				#ifndef GLWRAP_NO_BLEND_SEPARATE
-	GLenum alphaSrc, alphaDst;
+	BlendFactor alphaSrc, alphaDst;
 																				#endif//GLWRAP_NO_BLEND_SEPARATE
 																				#ifndef GLWRAP_NO_BLEND_MODE
-	GLenum mode, alphaMode;
+	BlendEquation mode, alphaMode;
 																				#endif//GLWRAP_NO_BLEND_MODE
 
-	static const BlendState None;
-	static const BlendState Additive;
-	static const BlendState AdditiveAlpha;
-	static const BlendState AlphaBlend;
-	static const BlendState Opaque;
-	static const BlendState Mulitply;
+	static const Blend None;
+	static const Blend Additive;
+	static const Blend AdditiveAlpha;
+	static const Blend AlphaBlend;
+	static const Blend Opaque;
+	static const Blend Mulitply;
 };
-const BlendState BlendState::None;
-const BlendState BlendState::Additive(GL_ONE, GL_ONE);
-const BlendState BlendState::AdditiveAlpha(GL_SRC_ALPHA, GL_ONE);
-const BlendState BlendState::AlphaBlend(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-const BlendState BlendState::Opaque(GL_ONE, GL_ZERO);
-const BlendState BlendState::Mulitply(GL_ZERO, GL_SRC_COLOR);
+const Blend Blend::None;
+const Blend Blend::Additive(GL_ONE, GL_ONE);
+const Blend Blend::AdditiveAlpha(GL_SRC_ALPHA, GL_ONE);
+const Blend Blend::AlphaBlend(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+const Blend Blend::Opaque(GL_ONE, GL_ZERO);
+const Blend Blend::Mulitply(GL_ZERO, GL_SRC_COLOR);
 
 // -------
 // | Color
@@ -762,7 +1130,7 @@ public:
 	VertexAttribPointer()
 		: size(-1)
 	{ }
-	VertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLvoid *pointer)
+	VertexAttribPointer(GLuint index, GLint size, AttribType type, GLboolean normalized, GLsizei stride, GLvoid *pointer)
 		: index(index)
 		, size(size)
 		, type(type)
@@ -785,7 +1153,7 @@ public:
 
 	GLuint index;
 	GLint size;
-	GLenum type;
+	AttribType type;
 	GLboolean normalized;
 	GLsizei stride;
 	GLvoid *pointer;
@@ -801,7 +1169,7 @@ public:
 	NamedVertexAttribPointer()
 		: VertexAttribPointer()
 	{ }
-	NamedVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLvoid *pointer, std::string name)
+	NamedVertexAttribPointer(GLuint index, GLint size, AttribType type, bool normalized, GLsizei stride, GLvoid *pointer, std::string name)
 		: VertexAttribPointer(index, size, type, normalized, stride, pointer)
 		, name(std::move(name))
 	{ }
@@ -872,7 +1240,7 @@ public:
 		glCompileShader(m_handle);
 	}
 
-	GLint getParam(GLenum pname) const
+	GLint getParam(ShaderParamName pname) const
 	{
 		GLWRAP_ASSERT(m_handle, "Shader is initialized");
 		GLint t;
@@ -899,7 +1267,7 @@ public:
 		return str;
 	}
 
-	static Shader create(GLenum type)
+	static Shader create(ShaderType type)
 	{
 		return Shader(glCreateShader(type));
 	}
@@ -982,6 +1350,14 @@ public:
 		GLWRAP_ASSERT(shader.initialized(), "Shader to attach is initialized");
 		glAttachShader(m_handle, shader.get());
 	}
+
+	void detachShader(Shader shader)
+	{
+		GLWRAP_ASSERT(m_handle != 0, "Program is initialized");
+		GLWRAP_ASSERT(shader.initialized(), "Shader to attach is initialized");
+		glDetachShader(m_handle, shader.get());
+	}
+
 	void link()
 	{
 		glLinkProgram(m_handle);
@@ -995,7 +1371,7 @@ public:
 		return GLWRAP_ATTACH_HANDLE(ActiveProgram(), m_handle);
 	}
 	
-	GLint getParam(GLenum pname) const
+	GLint getParam(ProgramParamName pname) const
 	{
 		GLWRAP_ASSERT(m_handle != 0, "Program is initialized");
 		GLint t;
@@ -1075,11 +1451,11 @@ GLWRAP_MAKE_OCLASS_END();
 class ActiveBuffer : public TActiveHandle
 {
 public:
-	ActiveBuffer(GLenum target)
+	ActiveBuffer(BufferTarget target)
 		: TActiveHandle(target)
 	{ }
 
-	void bufferData(const GLvoid* data, GLsizei size, GLenum usage=GL_STATIC_DRAW)
+	void bufferData(const GLvoid* data, GLsizei size, BufferUsage usage=GL_STATIC_DRAW)
 	{
 		GLWRAP_CHECK_ACTIVE(GL_ARRAY_BUFFER_BINDING, m_target == GL_ARRAY_BUFFER);
 		GLWRAP_CHECK_ACTIVE(GL_ELEMENT_ARRAY_BUFFER_BINDING, m_target == GL_ELEMENT_ARRAY_BUFFER);
@@ -1125,13 +1501,13 @@ public:
 		}
 	}
 
-	ActiveBuffer bind(GLenum target) const
+	ActiveBuffer bind(BufferTarget target) const
 	{
 		GLWRAP_ASSERT(m_handle != 0, "Buffer is initialized");
 		glBindBuffer(target, m_handle);
 		return GLWRAP_ATTACH_HANDLE(ActiveBuffer(target), m_handle);
 	}
-	static void unbind(GLenum target)
+	static void unbind(BufferTarget target)
 	{
 		glBindBuffer(target, 0);
 	}
@@ -1163,12 +1539,12 @@ public:
 		: Buffer()
 		, m_target(GL_NONE)
 	{ }
-	explicit TBuffer(GLenum target)
+	explicit TBuffer(BufferTarget target)
 		: Buffer()
 		, m_target(target)
 	{
 	}
-	TBuffer(GLenum target, GLuint buffer)
+	TBuffer(BufferTarget target, GLuint buffer)
 		: Buffer(buffer)
 		, m_target(target)
 	{
@@ -1198,12 +1574,12 @@ public:
 		Buffer::unbind(m_target);
 	}
 
-	GLenum getTarget() const
+	BufferTarget getTarget() const
 	{
 		return m_target;
 	}
 
-	static TBuffer create(GLenum target)
+	static TBuffer create(BufferTarget target)
 	{
 		TBuffer buf(target);
 		buf.gen();
@@ -1214,8 +1590,8 @@ private:
 };
 
 GLWRAP_MAKE_OCLASS_BEGIN_NO_HANDLE(OTBuffer, TBuffer);
-OTBuffer(GLenum target) : TBuffer(target) { }
-OTBuffer(GLenum target, GLuint handle) : TBuffer(target, handle) { }
+OTBuffer(BufferTarget target) : TBuffer(target) { }
+OTBuffer(BufferTarget target, GLuint handle) : TBuffer(target, handle) { }
 GLWRAP_MAKE_OCLASS_END();
 
 // -------------------
@@ -1225,14 +1601,14 @@ GLWRAP_MAKE_OCLASS_END();
 class ActiveIndexBuffer : public ActiveBuffer
 {
 public:
-	ActiveIndexBuffer(GLenum indexType=GL_NONE)
+	ActiveIndexBuffer(IndexType indexType=GL_NONE)
 		: ActiveBuffer(GL_ELEMENT_ARRAY_BUFFER)
 		, m_indexType(indexType)
 	{ }
 
-	GLenum getIndexType() const { return m_indexType; }
+	IndexType getIndexType() const { return m_indexType; }
 
-	void drawElements(GLenum mode, GLsizei count, GLint offset=0) const
+	void drawElements(RenderMode mode, GLsizei count, GLint offset=0) const
 	{
 		GLWRAP_CHECK_ACTIVE(GL_ELEMENT_ARRAY_BUFFER_BINDING, true);
 		glDrawElements(mode, count, m_indexType, (const GLvoid*)offset);
@@ -1252,12 +1628,12 @@ public:
 		: Buffer()
 		, m_type(GL_NONE)
 	{ }
-	explicit IndexBuffer(GLenum type)
+	explicit IndexBuffer(IndexType type)
 		: Buffer()
 		, m_type(type)
 	{
 	}
-	IndexBuffer(GLenum type, GLuint buffer)
+	IndexBuffer(IndexType type, GLuint buffer)
 		: Buffer(buffer)
 		, m_type(type)
 	{
@@ -1282,12 +1658,12 @@ public:
 	{
 		Buffer::unbind(GL_ELEMENT_ARRAY_BUFFER);
 	}
-	GLenum getIndexType() const
+	IndexType getIndexType() const
 	{
 		return m_type;
 	}
 
-	static IndexBuffer create(GLenum type)
+	static IndexBuffer create(IndexType type)
 	{
 		IndexBuffer buf(type);
 		buf.gen();
@@ -1298,8 +1674,8 @@ private:
 };
 
 GLWRAP_MAKE_OCLASS_BEGIN_NO_HANDLE(OIndexBuffer, IndexBuffer);
-OIndexBuffer(GLenum type) : IndexBuffer(type) { }
-OIndexBuffer(GLenum type, GLuint buffer) : IndexBuffer(type, buffer) { }
+OIndexBuffer(IndexType type) : IndexBuffer(type) { }
+OIndexBuffer(IndexType type, GLuint buffer) : IndexBuffer(type, buffer) { }
 GLWRAP_MAKE_OCLASS_END();
 
 // --------------------
@@ -1309,11 +1685,11 @@ GLWRAP_MAKE_OCLASS_END();
 class ActiveRenderbuffer : public TActiveHandle
 {
 public:
-	ActiveRenderbuffer(GLenum target=GL_RENDERBUFFER)
+	ActiveRenderbuffer(RenderbufferTarget target=GL_RENDERBUFFER)
 		: TActiveHandle(target)
 	{ }
 
-	void storage(GLenum internalformat, GLsizei width, GLsizei height)
+	void storage(InternalFormat internalformat, GLsizei width, GLsizei height)
 	{
 		GLWRAP_CHECK_ACTIVE(GL_RENDERBUFFER_BINDING, m_target == GL_RENDERBUFFER);
 		glRenderbufferStorage(m_target, internalformat, width, height);
@@ -1361,13 +1737,13 @@ public:
 		}
 	}
 
-	ActiveRenderbuffer bind(GLenum target=GL_RENDERBUFFER) const
+	ActiveRenderbuffer bind(RenderbufferTarget target=GL_RENDERBUFFER) const
 	{
 		GLWRAP_ASSERT(m_handle != 0, "Renerbuffer is initialized");
 		glBindRenderbuffer(target, m_handle);
 		return GLWRAP_ATTACH_HANDLE(ActiveRenderbuffer(target), m_handle);
 	}
-	static void unbind(GLenum target=GL_RENDERBUFFER)
+	static void unbind(RenderbufferTarget target=GL_RENDERBUFFER)
 	{
 		glBindRenderbuffer(target, 0);
 	}
@@ -1395,17 +1771,17 @@ GLWRAP_MAKE_OCLASS_END();
 class ActiveFramebuffer : public TActiveHandle
 {
 public:
-	ActiveFramebuffer(GLenum target=GL_FRAMEBUFFER)
+	ActiveFramebuffer(FramebufferTarget target=GL_FRAMEBUFFER)
 		: TActiveHandle(target)
 	{ }
 
-	void texture(GLenum attachment, Texture texture, GLint level=0)
+	void texture(ColorAttachment attachment, Texture texture, GLint level=0)
 	{
 		GLWRAP_CHECK_ACTIVE(GL_FRAMEBUFFER_BINDING, m_target == GL_FRAMEBUFFER);
 		GLWRAP_ASSERT(texture.initialized(), "Texture is initialized");
 		glFramebufferTexture(m_target, attachment, texture.get(), level);
 	}
-	void texture2D(GLenum attachment, ActiveTexture textarget, Texture texture, GLint level=0)
+	void texture2D(ColorAttachment attachment, ActiveTexture textarget, Texture texture, GLint level=0)
 	{
 		GLWRAP_CHECK_ACTIVE(GL_FRAMEBUFFER_BINDING, m_target == GL_FRAMEBUFFER);
 		GLWRAP_ASSERT(texture.initialized(), "Texture is initialized");
@@ -1417,7 +1793,7 @@ public:
 		glFramebufferTexture2D(m_target, attachment, textarget.getTarget(), texture.get(), level);
 	}
 
-	void renderbuffer(GLenum attachment, ActiveRenderbuffer renderbuffertarget, Renderbuffer renderbuffer)
+	void renderbuffer(RenderbufferAttachment attachment, ActiveRenderbuffer renderbuffertarget, Renderbuffer renderbuffer)
 	{
 		GLWRAP_CHECK_ACTIVE(GL_FRAMEBUFFER_BINDING, m_target == GL_FRAMEBUFFER);
 		GLWRAP_ASSERT(renderbuffer.initialized(), "Renderbuffer is initialized");
@@ -1427,6 +1803,11 @@ public:
 			GLWRAP_ASSERT(renderbuffertarget.isActive(GL_RENDERBUFFER_BINDING), "Bound texture is active");
 																				#endif//GLWRAP_ENABLE_ACTIVECHECK
 		glFramebufferRenderbuffer(m_target, attachment, renderbuffertarget.getTarget(), renderbuffer.get());
+	}
+
+	void renderbuffer(ActiveRenderbuffer renderbuffertarget, Renderbuffer renderbuffer)
+	{
+		this->renderbuffer(GL_RENDERBUFFER, renderbuffertarget, renderbuffer);
 	}
 
 	GLenum checkStatus()
@@ -1477,13 +1858,13 @@ public:
 		}
 	}
 
-	ActiveFramebuffer bind(GLenum target=GL_FRAMEBUFFER) const
+	ActiveFramebuffer bind(FramebufferTarget target=GL_FRAMEBUFFER) const
 	{
 		GLWRAP_ASSERT(m_handle != 0, "Framebuffer is initialized");
 		glBindFramebuffer(target, m_handle);
 		return GLWRAP_ATTACH_HANDLE(ActiveFramebuffer(target), m_handle);
 	}
-	static void unbind(GLenum target=GL_FRAMEBUFFER)
+	static void unbind(FramebufferTarget target=GL_FRAMEBUFFER)
 	{
 		glBindFramebuffer(target, 0);
 	}
@@ -1596,6 +1977,10 @@ inline void drawElements(GLenum mode, GLsizei count, IndexBuffer indexBuffer, GL
 #undef GLWRAP_MAKE_OCLASS_BEGIN
 #undef GLWRAP_MAKE_OCLASS_BEGIN_NO_HANDLE
 #undef GLWRAP_MAKE_OCLASS_END
+#undef GLWRAP_ENUM_BEGIN
+#undef GLWRAP_ENUM_ALLOW
+#undef GLWRAP_ENUM_END
+#undef GLWRAP_ENUM_ASSERT
 #ifdef GLWRAP_OLD_ASSERT_DEFINE
 #define assert GLWRAP_OLD_ASSERT_DEFINE
 #undef GLWRAP_OLD_ASSERT_DEFINE
