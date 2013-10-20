@@ -931,6 +931,29 @@ return 0;
 																				#endif//GLWRAP_NO_ENUMS
 }
 
+inline int getNumTextureLevelParamValues(TextureParamName pname)
+{
+																				#ifndef GLWRAP_NO_ENUMS
+	switch (pname)
+	{
+	case TEXTURE_WIDTH: return 1;
+	case TEXTURE_HEIGHT: return 1;
+	case TEXTURE_DEPTH: return 1;
+	case TEXTURE_INTERNAL_FORMAT: return 1;
+	case TEXTURE_RED_SIZE: return 1;
+	case TEXTURE_GREEN_SIZE: return 1;
+	case TEXTURE_BLUE_SIZE: return 1;
+	case TEXTURE_ALPHA_SIZE: return 1;
+	case TEXTURE_DEPTH_SIZE: return 1;
+	case TEXTURE_COMPRESSED: return 1;
+	case TEXTURE_COMPRESSED_IMAGE_SIZE: return 1;
+	default: return 0;
+	}
+																				#else //GLWRAP_NO_ENUMS
+	return 0;
+																				#endif//GLWRAP_NO_ENUMS
+}
+
 inline int isGetValueAmount(int amount, int num)
 {
 	return amount == 0 || amount == num;
@@ -1232,7 +1255,7 @@ public:
 	GLint GetLevelInteger(TextureLevelParamName pname, GLint level = 0) const
 	{
 		GLWRAP_TEXTURE_ACTIVECHECK();
-		GLWRAP_ASSERT(isGetValueAmount(getNumTextureParamValues(pname), 1), "Parameter has 1 component");
+		GLWRAP_ASSERT(isGetValueAmount(getNumTextureLevelParamValues(pname), 1), "Parameter has 1 component");
 		GLint param;
 		glGetTexLevelParameteriv(m_target, level, pname, &param);
 		return param;
@@ -1245,7 +1268,7 @@ public:
 	GLfloat GetLevelFloat(TextureLevelParamName pname, GLint level=0)
 	{
 		GLWRAP_TEXTURE_ACTIVECHECK();
-		GLWRAP_ASSERT(isGetValueAmount(getNumTextureParamValues(pname), 1), "Parameter has 1 component");
+		GLWRAP_ASSERT(isGetValueAmount(getNumTextureLevelParamValues(pname), 1), "Parameter has 1 component");
 		GLfloat param;
 		glGetTexLevelParameterfv(m_target, level, pname, &param);
 		return param;
@@ -1258,7 +1281,7 @@ public:
 	GLboolean GetLevelBoolean(TextureLevelParamName pname, GLint level = 0) const
 	{
 		GLWRAP_TEXTURE_ACTIVECHECK();
-		GLWRAP_ASSERT(isGetValueAmount(getNumTextureParamValues(pname), 1), "Parameter has 1 component");
+		GLWRAP_ASSERT(isGetValueAmount(getNumTextureLevelParamValues(pname), 1), "Parameter has 1 component");
 		GLint param;
 		glGetTexLevelParameteriv(m_target, level, pname, &param);
 		return param != 0;
@@ -1266,7 +1289,7 @@ public:
 	Color GetLevelColor(TextureLevelParamName pname, GLint level = 0) const
 	{
 		GLWRAP_TEXTURE_ACTIVECHECK();
-		GLWRAP_ASSERT(isGetValueAmount(getNumTextureParamValues(pname), 4), "Parameter has 4 components");
+		GLWRAP_ASSERT(isGetValueAmount(getNumTextureLevelParamValues(pname), 4), "Parameter has 4 components");
 		GLfloat params[4];
 		glGetTexLevelParameterfv(m_target, level, pname, params);
 		return Color(params);
