@@ -2580,19 +2580,31 @@ struct IndexFormat
 {
 	IndexFormat()
 		: renderMode(GL_NONE)
-		, count(0)
 		, type(GL_NONE)
+		, count(0)
 	{ }
-	IndexFormat(RenderMode renderMode, GLuint count, IndexType type)
+	IndexFormat(RenderMode renderMode, IndexType type, GLuint count=0)
 		: renderMode(renderMode)
-		, count(count)
 		, type(type)
+		, count(count)
 	{ }
 
 	RenderMode renderMode;
-	GLuint count;
 	IndexType type;
+	GLuint count;
 };
+
+GLint getIndexTypeSize(IndexType type)
+{
+	switch (type)
+	{
+	case GL_UNSIGNED_BYTE: return 1;
+	case GL_UNSIGNED_SHORT: return 2;
+	case GL_UNSIGNED_INT: return 4;
+	default: GLWRAP_ASSERT(true, "Unknown index type");
+		return 0;
+	}
+}
 
 // ------------------
 // | BoundIndexBuffer
@@ -2612,12 +2624,25 @@ public:
 
 	void Draw()
 	{
+		GLWRAP_ASSERT(m_format.renderMode != GL_NONE && m_format.type != GL_NONE, "Format is initialized");
+		GLWRAP_ASSERT(m_format.count != 0, "Format size is specified");
 		DrawElements(m_format.renderMode, m_format.count, m_format.type, *this);
 	}
 	void Draw(unsigned int count, unsigned int offset=0)
 	{
-		GLWRAP_ASSERT(offset + count <= m_format.count, "Not drawing too much indices");
+		GLWRAP_ASSERT(m_format.renderMode != GL_NONE && m_format.type != GL_NONE, "Format is initialized");
+		GLWRAP_ASSERT(m_format.count == 0 || offset + count <= m_format.count, "Not drawing too much indices");
 		DrawElements(m_format.renderMode, count, m_format.type, *this, offset);
+	}
+
+	using BoundBuffer::Data;
+	IndexFormat Data(RenderMode mode, GLuint count, IndexType type, GLvoid* data, BufferUsage usage=GL_STATIC_DRAW)
+	{
+		Data(data, count*getIndexTypeSize(type), usage);
+		m_format.renderMode = mode;
+		m_format.count = count;
+		m_format.type = type;
+		return m_format;
 	}
 
 	IndexFormat getFormat() const { return m_format; }
@@ -2651,6 +2676,15 @@ public:
 	static void Unbind(BufferTarget target = GL_ELEMENT_ARRAY_BUFFER)
 	{
 		Buffer::Unbind(target);
+	}
+
+	void setFormat(const IndexFormat& format)
+	{
+		m_format = format;
+	}
+	IndexFormat getFormat() const
+	{
+		return m_format;
 	}
 
 	static IndexBuffer Create()
