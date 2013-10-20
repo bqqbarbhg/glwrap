@@ -2657,11 +2657,13 @@ private:
 class IndexBuffer : public Buffer
 {
 public:
-	IndexBuffer()
+	IndexBuffer(const IndexFormat& format=IndexFormat())
 		: Buffer()
+		, m_format(format)
 	{ }
-	IndexBuffer(GLuint buffer)
+	IndexBuffer(GLuint buffer, const IndexFormat& format = IndexFormat())
 		: Buffer(buffer)
+		, m_format(format)
 	{
 	}
 	void swap(IndexBuffer& b)
@@ -2687,9 +2689,9 @@ public:
 		return m_format;
 	}
 
-	static IndexBuffer Create()
+	static IndexBuffer Create(const IndexFormat& format = IndexFormat())
 	{
-		IndexBuffer b;
+		IndexBuffer b(format);
 		b.Gen();
 		return b;
 	}
