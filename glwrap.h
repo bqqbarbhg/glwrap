@@ -45,11 +45,15 @@ namespace gw
 
 #define GLWRAP_ATTACH_HANDLE(active, handle) (BoundHandle::attachHandle(active, handle))
 #define GLWRAP_CHECK_ACTIVE(target, cond) if (cond) GLWRAP_ASSERT(isActive(target), "Handle is active")
+#define GLWRAP_CHECK_ACTIVE_OUT(expr) GLWRAP_ASSERT(expr, "Handle is active")
+#define GLWRAP_AC_ASSERT(e, m) GLWRAP_ASSERT(e, m)
 
 #else
 
 #define GLWRAP_ATTACH_HANDLE(active, handle) (active)
 #define GLWRAP_CHECK_ACTIVE(target, cond)
+#define GLWRAP_CHECK_ACTIVE_OUT(target)
+#define GLWRAP_AC_ASSERT(e, m)
 
 #endif
 
@@ -347,6 +351,174 @@ enum EnumFramebufferAttachment
 	DEPTH_STENCIL_ATTACHMENT = GL_DEPTH_STENCIL_ATTACHMENT,
 };
 
+enum EnumGlobalParamName
+{
+	ACTIVE_TEXTURE = GL_ACTIVE_TEXTURE,
+	ALIASED_LINE_WIDTH_RANGE = GL_ALIASED_LINE_WIDTH_RANGE,
+	SMOOTH_LINE_WIDTH_RANGE = GL_SMOOTH_LINE_WIDTH_RANGE,
+	SMOOTH_LINE_WIDTH_GRANULARITY = GL_SMOOTH_LINE_WIDTH_GRANULARITY,
+	ARRAY_BUFFER_BINDING = GL_ARRAY_BUFFER_BINDING,
+	BLEND = GL_BLEND,
+	BLEND_COLOR = GL_BLEND_COLOR,
+	BLEND_DST_ALPHA = GL_BLEND_DST_ALPHA,
+	BLEND_DST_RGB = GL_BLEND_DST_RGB,
+	BLEND_EQUATION_ALPHA = GL_BLEND_EQUATION_ALPHA,
+	BLEND_EQUATION_RGB = GL_BLEND_EQUATION_RGB,
+	BLEND_SRC_ALPHA = GL_BLEND_SRC_ALPHA,
+	BLEND_SRC_RGB = GL_BLEND_SRC_RGB,
+	COLOR_CLEAR_VALUE = GL_COLOR_CLEAR_VALUE,
+	COLOR_LOGIC_OP = GL_COLOR_LOGIC_OP,
+	COLOR_WRITEMASK = GL_COLOR_WRITEMASK,
+	COMPRESSED_TEXTURE_FORMATS = GL_COMPRESSED_TEXTURE_FORMATS,
+	CULL_FACE = GL_CULL_FACE,
+	CURRENT_PROGRAM = GL_CURRENT_PROGRAM,
+	DEPTH_CLEAR_VALUE = GL_DEPTH_CLEAR_VALUE,
+	DEPTH_FUNC = GL_DEPTH_FUNC,
+	DEPTH_RANGE = GL_DEPTH_RANGE,
+	DEPTH_TEST = GL_DEPTH_TEST,
+	DEPTH_WRITEMASK = GL_DEPTH_WRITEMASK,
+	DITHER = GL_DITHER,
+	DOUBLEBUFFER = GL_DOUBLEBUFFER,
+	DRAW_BUFFER = GL_DRAW_BUFFER,
+	DRAW_FRAMEBUFFER_BINDING = GL_DRAW_FRAMEBUFFER_BINDING,
+	READ_FRAMEBUFFER_BINDING = GL_READ_FRAMEBUFFER_BINDING,
+	ELEMENT_ARRAY_BUFFER_BINDING = GL_ELEMENT_ARRAY_BUFFER_BINDING,
+	RENDERBUFFER_BINDING = GL_RENDERBUFFER_BINDING,
+	FRAGMENT_SHADER_DERIVATIVE_HINT = GL_FRAGMENT_SHADER_DERIVATIVE_HINT,
+	LINE_SMOOTH = GL_LINE_SMOOTH,
+	LINE_SMOOTH_HINT = GL_LINE_SMOOTH_HINT,
+	LINE_WIDTH = GL_LINE_WIDTH,
+	LOGIC_OP_MODE = GL_LOGIC_OP_MODE,
+	MAX_3D_TEXTURE_SIZE = GL_MAX_3D_TEXTURE_SIZE,
+	MAX_CLIP_DISTANCES = GL_MAX_CLIP_DISTANCES,
+	MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS = GL_MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS,
+	MAX_COMBINED_TEXTURE_IMAGE_UNITS = GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS,
+	MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS = GL_MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS,
+	MAX_COMBINED_GEOMETRY_UNIFORM_COMPONENTS = GL_MAX_COMBINED_GEOMETRY_UNIFORM_COMPONENTS,
+	MAX_VARYING_COMPONENTS = GL_MAX_VARYING_COMPONENTS,
+	MAX_COMBINED_UNIFORM_BLOCKS = GL_MAX_COMBINED_UNIFORM_BLOCKS,
+	MAX_CUBE_MAP_TEXTURE_SIZE = GL_MAX_CUBE_MAP_TEXTURE_SIZE,
+	MAX_DRAW_BUFFERS = GL_MAX_DRAW_BUFFERS,
+	MAX_ELEMENTS_INDICES = GL_MAX_ELEMENTS_INDICES,
+	MAX_ELEMENTS_VERTICES = GL_MAX_ELEMENTS_VERTICES,
+	MAX_FRAGMENT_UNIFORM_COMPONENTS = GL_MAX_FRAGMENT_UNIFORM_COMPONENTS,
+	MAX_FRAGMENT_INPUT_COMPONENTS = GL_MAX_FRAGMENT_INPUT_COMPONENTS,
+	MAX_PROGRAM_TEXEL_OFFSET = GL_MAX_PROGRAM_TEXEL_OFFSET,
+	MIN_PROGRAM_TEXEL_OFFSET = GL_MIN_PROGRAM_TEXEL_OFFSET,
+	MAX_RECTANGLE_TEXTURE_SIZE = GL_MAX_RECTANGLE_TEXTURE_SIZE,
+	MAX_TEXTURE_IMAGE_UNITS = GL_MAX_TEXTURE_IMAGE_UNITS,
+	MAX_TEXTURE_LOD_BIAS = GL_MAX_TEXTURE_LOD_BIAS,
+	MAX_TEXTURE_SIZE = GL_MAX_TEXTURE_SIZE,
+	MAX_RENDERBUFFER_SIZE = GL_MAX_RENDERBUFFER_SIZE,
+	MAX_ARRAY_TEXTURE_LAYERS = GL_MAX_ARRAY_TEXTURE_LAYERS,
+	MAX_TEXTURE_BUFFER_SIZE = GL_MAX_TEXTURE_BUFFER_SIZE,
+	MAX_UNIFORM_BLOCK_SIZE = GL_MAX_UNIFORM_BLOCK_SIZE,
+	MAX_VERTEX_ATTRIBS = GL_MAX_VERTEX_ATTRIBS,
+	MAX_VERTEX_TEXTURE_IMAGE_UNITS = GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS,
+	MAX_GEOMETRY_TEXTURE_IMAGE_UNITS = GL_MAX_GEOMETRY_TEXTURE_IMAGE_UNITS,
+	MAX_VERTEX_UNIFORM_COMPONENTS = GL_MAX_VERTEX_UNIFORM_COMPONENTS,
+	MAX_VERTEX_OUTPUT_COMPONENTS = GL_MAX_VERTEX_OUTPUT_COMPONENTS,
+	MAX_GEOMETRY_UNIFORM_COMPONENTS = GL_MAX_GEOMETRY_UNIFORM_COMPONENTS,
+	MAX_SAMPLE_MASK_WORDS = GL_MAX_SAMPLE_MASK_WORDS,
+	MAX_COLOR_TEXTURE_SAMPLES = GL_MAX_COLOR_TEXTURE_SAMPLES,
+	MAX_DEPTH_TEXTURE_SAMPLES = GL_MAX_DEPTH_TEXTURE_SAMPLES,
+	MAX_INTEGER_SAMPLES = GL_MAX_INTEGER_SAMPLES,
+	MAX_SERVER_WAIT_TIMEOUT = GL_MAX_SERVER_WAIT_TIMEOUT,
+	MAX_UNIFORM_BUFFER_BINDINGS = GL_MAX_UNIFORM_BUFFER_BINDINGS,
+	UNIFORM_BUFFER_OFFSET_ALIGNMENT = GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT,
+	MAX_VERTEX_UNIFORM_BLOCKS = GL_MAX_VERTEX_UNIFORM_BLOCKS,
+	MAX_GEOMETRY_UNIFORM_BLOCKS = GL_MAX_GEOMETRY_UNIFORM_BLOCKS,
+	MAX_GEOMETRY_INPUT_COMPONENTS = GL_MAX_GEOMETRY_INPUT_COMPONENTS,
+	MAX_GEOMETRY_OUTPUT_COMPONENTS = GL_MAX_GEOMETRY_OUTPUT_COMPONENTS,
+	MAX_VIEWPORT_DIMS = GL_MAX_VIEWPORT_DIMS,
+	NUM_COMPRESSED_TEXTURE_FORMATS = GL_NUM_COMPRESSED_TEXTURE_FORMATS,
+	PACK_ALIGNMENT = GL_PACK_ALIGNMENT,
+	PACK_IMAGE_HEIGHT = GL_PACK_IMAGE_HEIGHT,
+	PACK_LSB_FIRST = GL_PACK_LSB_FIRST,
+	PACK_ROW_LENGTH = GL_PACK_ROW_LENGTH,
+	PACK_SKIP_IMAGES = GL_PACK_SKIP_IMAGES,
+	PACK_SKIP_PIXELS = GL_PACK_SKIP_PIXELS,
+	PACK_SKIP_ROWS = GL_PACK_SKIP_ROWS,
+	PACK_SWAP_BYTES = GL_PACK_SWAP_BYTES,
+	PIXEL_PACK_BUFFER_BINDING = GL_PIXEL_PACK_BUFFER_BINDING,
+	PIXEL_UNPACK_BUFFER_BINDING = GL_PIXEL_UNPACK_BUFFER_BINDING,
+	POINT_FADE_THRESHOLD_SIZE = GL_POINT_FADE_THRESHOLD_SIZE,
+	PRIMITIVE_RESTART_INDEX = GL_PRIMITIVE_RESTART_INDEX,
+	PROGRAM_POINT_SIZE = GL_PROGRAM_POINT_SIZE,
+	PROVOKING_VERTEX = GL_PROVOKING_VERTEX,
+	POINT_SIZE = GL_POINT_SIZE,
+	POINT_SIZE_GRANULARITY = GL_POINT_SIZE_GRANULARITY,
+	POINT_SIZE_RANGE = GL_POINT_SIZE_RANGE,
+	POLYGON_OFFSET_FACTOR = GL_POLYGON_OFFSET_FACTOR,
+	POLYGON_OFFSET_UNITS = GL_POLYGON_OFFSET_UNITS,
+	POLYGON_OFFSET_FILL = GL_POLYGON_OFFSET_FILL,
+	POLYGON_OFFSET_LINE = GL_POLYGON_OFFSET_LINE,
+	POLYGON_OFFSET_POINT = GL_POLYGON_OFFSET_POINT,
+	POLYGON_SMOOTH = GL_POLYGON_SMOOTH,
+	POLYGON_SMOOTH_HINT = GL_POLYGON_SMOOTH_HINT,
+	SAMPLE_BUFFERS = GL_SAMPLE_BUFFERS,
+	SAMPLE_COVERAGE_VALUE = GL_SAMPLE_COVERAGE_VALUE,
+	SAMPLE_COVERAGE_INVERT = GL_SAMPLE_COVERAGE_INVERT,
+	SAMPLER_BINDING = GL_SAMPLER_BINDING,
+	SAMPLES = GL_SAMPLES,
+	SCISSOR_BOX = GL_SCISSOR_BOX,
+	SCISSOR_TEST = GL_SCISSOR_TEST,
+	STENCIL_BACK_PASS_DEPTH_FAIL = GL_STENCIL_BACK_PASS_DEPTH_FAIL,
+	STENCIL_BACK_PASS_DEPTH_PASS = GL_STENCIL_BACK_PASS_DEPTH_PASS,
+	STENCIL_BACK_REF = GL_STENCIL_BACK_REF,
+	STENCIL_BACK_VALUE_MASK = GL_STENCIL_BACK_VALUE_MASK,
+	STENCIL_BACK_WRITEMASK = GL_STENCIL_BACK_WRITEMASK,
+	STENCIL_CLEAR_VALUE = GL_STENCIL_CLEAR_VALUE,
+	STENCIL_FAIL = GL_STENCIL_FAIL,
+	STENCIL_FUNC = GL_STENCIL_FUNC,
+	STENCIL_PASS_DEPTH_FAIL = GL_STENCIL_PASS_DEPTH_FAIL,
+	STENCIL_PASS_DEPTH_PASS = GL_STENCIL_PASS_DEPTH_PASS,
+	STENCIL_REF = GL_STENCIL_REF,
+	STENCIL_TEST = GL_STENCIL_TEST,
+	STENCIL_VALUE_MASK = GL_STENCIL_VALUE_MASK,
+	STENCIL_WRITEMASK = GL_STENCIL_WRITEMASK,
+	STEREO = GL_STEREO,
+	SUBPIXEL_BITS = GL_SUBPIXEL_BITS,
+	TEXTURE_BINDING_1D = GL_TEXTURE_BINDING_1D,
+	TEXTURE_BINDING_1D_ARRAY = GL_TEXTURE_BINDING_1D_ARRAY,
+	TEXTURE_BINDING_2D = GL_TEXTURE_BINDING_2D,
+	TEXTURE_BINDING_2D_ARRAY = GL_TEXTURE_BINDING_2D_ARRAY,
+	TEXTURE_BINDING_2D_MULTISAMPLE = GL_TEXTURE_BINDING_2D_MULTISAMPLE,
+	TEXTURE_BINDING_2D_MULTISAMPLE_ARRAY = GL_TEXTURE_BINDING_2D_MULTISAMPLE_ARRAY,
+	TEXTURE_BINDING_3D = GL_TEXTURE_BINDING_3D,
+	TEXTURE_BINDING_BUFFER = GL_TEXTURE_BINDING_BUFFER,
+	TEXTURE_BINDING_CUBE_MAP = GL_TEXTURE_BINDING_CUBE_MAP,
+	TEXTURE_BINDING_RECTANGLE = GL_TEXTURE_BINDING_RECTANGLE,
+	TEXTURE_COMPRESSION_HINT = GL_TEXTURE_COMPRESSION_HINT,
+	TIMESTAMP = GL_TIMESTAMP,
+	TRANSFORM_FEEDBACK_BUFFER_BINDING = GL_TRANSFORM_FEEDBACK_BUFFER_BINDING,
+	TRANSFORM_FEEDBACK_BUFFER_START = GL_TRANSFORM_FEEDBACK_BUFFER_START,
+	TRANSFORM_FEEDBACK_BUFFER_SIZE = GL_TRANSFORM_FEEDBACK_BUFFER_SIZE,
+	UNIFORM_BUFFER_BINDING = GL_UNIFORM_BUFFER_BINDING,
+	UNIFORM_BUFFER_START = GL_UNIFORM_BUFFER_START,
+	UNIFORM_BUFFER_SIZE = GL_UNIFORM_BUFFER_SIZE,
+	UNPACK_ALIGNMENT = GL_UNPACK_ALIGNMENT,
+	UNPACK_IMAGE_HEIGHT = GL_UNPACK_IMAGE_HEIGHT,
+	UNPACK_LSB_FIRST = GL_UNPACK_LSB_FIRST,
+	UNPACK_ROW_LENGTH = GL_UNPACK_ROW_LENGTH,
+	UNPACK_SKIP_IMAGES = GL_UNPACK_SKIP_IMAGES,
+	UNPACK_SKIP_PIXELS = GL_UNPACK_SKIP_PIXELS,
+	UNPACK_SKIP_ROWS = GL_UNPACK_SKIP_ROWS,
+	UNPACK_SWAP_BYTES = GL_UNPACK_SWAP_BYTES,
+	NUM_EXTENSIONS = GL_NUM_EXTENSIONS,
+	MAJOR_VERSION = GL_MAJOR_VERSION,
+	MINOR_VERSION = GL_MINOR_VERSION,
+	CONTEXT_FLAGS = GL_CONTEXT_FLAGS,
+	VIEWPORT = GL_VIEWPORT,
+};
+
+enum EnumClearMask
+{
+	COLOR_BUFFER_BIT = GL_COLOR_BUFFER_BIT,
+	DEPTH_BUFFER_BIT = GL_DEPTH_BUFFER_BIT,
+	STENCIL_BUFFER_BIT = GL_STENCIL_BUFFER_BIT,
+};
+
 #define GLWRAP_ENUM_BEGIN(ClassName) class ClassName { private: GLenum m_value; \
 public: \
 	operator GLenum() const { return m_value; } \
@@ -464,6 +636,296 @@ GLWRAP_ENUM_BEGIN(FramebufferAttachment)
 GLWRAP_ENUM_ALLOW(FramebufferAttachment, EnumFramebufferAttachment)
 GLWRAP_ENUM_END()
 
+GLWRAP_ENUM_BEGIN(GlobalParamName)
+GLWRAP_ENUM_ALLOW(GlobalParamName, EnumGlobalParamName)
+GLWRAP_ENUM_END()
+
+GLWRAP_ENUM_BEGIN(ClearMask)
+GLWRAP_ENUM_ALLOW(ClearMask, EnumClearMask)
+GLWRAP_ENUM_END()
+
+// -------
+// | Color
+// -------
+
+struct Color
+{
+public:
+	Color(float* rgba)
+		: r(rgba[0]), g(rgba[1]), b(rgba[2]), a(rgba[3])
+	{ }
+	Color(float r, float g, float b, float a = 1.0f)
+		: r(r), g(g), b(b), a(a)
+	{ }
+	static Color rgb(uint32_t col)
+	{
+		return Color(
+			(col >> 16 & 0xFF) / 255.0f,
+			(col >> 8 & 0xFF) / 255.0f,
+			(col >> 0 & 0xFF) / 255.0f);
+	}
+	static Color rgba(uint32_t col)
+	{
+		return Color(
+			(col >> 24 & 0xFF) / 255.0f,
+			(col >> 16 & 0xFF) / 255.0f,
+			(col >> 8 & 0xFF) / 255.0f,
+			(col >> 0 & 0xFF) / 255.0f);
+	}
+
+	float r, g, b, a;
+};
+
+// ------------------
+// | Common functions
+// ------------------
+
+inline int getNumParamValues(GlobalParamName pname)
+{
+																				#ifndef GLWRAP_NO_ENUMS
+	switch (pname)
+	{
+	case GL_ACTIVE_TEXTURE: return 1;
+	case GL_ALIASED_LINE_WIDTH_RANGE: return 2;
+	case GL_SMOOTH_LINE_WIDTH_RANGE: return 2;
+	case GL_SMOOTH_LINE_WIDTH_GRANULARITY: return 1;
+	case GL_ARRAY_BUFFER_BINDING: return 1;
+	case GL_BLEND: return 1;
+	case GL_BLEND_COLOR: return 4;
+	case GL_BLEND_DST_ALPHA: return 1;
+	case GL_BLEND_DST_RGB: return 1;
+	case GL_BLEND_EQUATION_ALPHA: return 1;
+	case GL_BLEND_EQUATION_RGB: return 1;
+	case GL_BLEND_SRC_ALPHA: return 1;
+	case GL_BLEND_SRC_RGB: return 1;
+	case GL_COLOR_CLEAR_VALUE: return 4;
+	case GL_COLOR_LOGIC_OP: return 1;
+	case GL_COLOR_WRITEMASK: return 4;
+	case GL_COMPRESSED_TEXTURE_FORMATS: return 0;
+	case GL_CULL_FACE: return 1;
+	case GL_CURRENT_PROGRAM: return 1;
+	case GL_DEPTH_CLEAR_VALUE: return 1;
+	case GL_DEPTH_FUNC: return 1;
+	case GL_DEPTH_RANGE: return 2;
+	case GL_DEPTH_TEST: return 1;
+	case GL_DEPTH_WRITEMASK: return 1;
+	case GL_DITHER: return 1;
+	case GL_DOUBLEBUFFER: return 1;
+	case GL_DRAW_BUFFER: return 1;
+	case GL_DRAW_FRAMEBUFFER_BINDING: return 1;
+	case GL_READ_FRAMEBUFFER_BINDING: return 1;
+	case GL_ELEMENT_ARRAY_BUFFER_BINDING: return 1;
+	case GL_RENDERBUFFER_BINDING: return 1;
+	case GL_FRAGMENT_SHADER_DERIVATIVE_HINT: return 1;
+	case GL_LINE_SMOOTH: return 1;
+	case GL_LINE_SMOOTH_HINT: return 1;
+	case GL_LINE_WIDTH: return 1;
+	case GL_LOGIC_OP_MODE: return 1;
+	case GL_MAX_3D_TEXTURE_SIZE: return 1;
+	case GL_MAX_CLIP_DISTANCES: return 1;
+	case GL_MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS: return 1;
+	case GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS: return 1;
+	case GL_MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS: return 1;
+	case GL_MAX_COMBINED_GEOMETRY_UNIFORM_COMPONENTS: return 1;
+	case GL_MAX_VARYING_COMPONENTS: return 1;
+	case GL_MAX_COMBINED_UNIFORM_BLOCKS: return 1;
+	case GL_MAX_CUBE_MAP_TEXTURE_SIZE: return 1;
+	case GL_MAX_DRAW_BUFFERS: return 1;
+	case GL_MAX_ELEMENTS_INDICES: return 1;
+	case GL_MAX_ELEMENTS_VERTICES: return 1;
+	case GL_MAX_FRAGMENT_UNIFORM_COMPONENTS: return 1;
+	case GL_MAX_FRAGMENT_INPUT_COMPONENTS: return 1;
+	case GL_MAX_PROGRAM_TEXEL_OFFSET: return 1;
+	case GL_MIN_PROGRAM_TEXEL_OFFSET: return 1;
+	case GL_MAX_RECTANGLE_TEXTURE_SIZE: return 1;
+	case GL_MAX_TEXTURE_IMAGE_UNITS: return 1;
+	case GL_MAX_TEXTURE_LOD_BIAS: return 1;
+	case GL_MAX_TEXTURE_SIZE: return 1;
+	case GL_MAX_RENDERBUFFER_SIZE: return 1;
+	case GL_MAX_ARRAY_TEXTURE_LAYERS: return 1;
+	case GL_MAX_TEXTURE_BUFFER_SIZE: return 1;
+	case GL_MAX_UNIFORM_BLOCK_SIZE: return 1;
+	//case GL_MAX_VARYING_FLOATS (GL_MAX_VARYING_COMPONENTS): return 1;
+	case GL_MAX_VERTEX_ATTRIBS: return 1;
+	case GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS: return 1;
+	case GL_MAX_GEOMETRY_TEXTURE_IMAGE_UNITS: return 1;
+	case GL_MAX_VERTEX_UNIFORM_COMPONENTS: return 1;
+	case GL_MAX_VERTEX_OUTPUT_COMPONENTS: return 1;
+	case GL_MAX_GEOMETRY_UNIFORM_COMPONENTS: return 1;
+	case GL_MAX_SAMPLE_MASK_WORDS: return 1;
+	case GL_MAX_COLOR_TEXTURE_SAMPLES: return 1;
+	case GL_MAX_DEPTH_TEXTURE_SAMPLES: return 1;
+	case GL_MAX_INTEGER_SAMPLES: return 1;
+	case GL_MAX_SERVER_WAIT_TIMEOUT: return 1;
+	case GL_MAX_UNIFORM_BUFFER_BINDINGS: return 1;
+	case GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT: return 1;
+	case GL_MAX_VERTEX_UNIFORM_BLOCKS: return 1;
+	case GL_MAX_GEOMETRY_UNIFORM_BLOCKS: return 1;
+	case GL_MAX_GEOMETRY_INPUT_COMPONENTS: return 1;
+	case GL_MAX_GEOMETRY_OUTPUT_COMPONENTS: return 1;
+	case GL_MAX_VIEWPORT_DIMS: return 1;
+	case GL_NUM_COMPRESSED_TEXTURE_FORMATS: return 1;
+	case GL_PACK_ALIGNMENT: return 1;
+	case GL_PACK_IMAGE_HEIGHT: return 1;
+	case GL_PACK_LSB_FIRST: return 1;
+	case GL_PACK_ROW_LENGTH: return 1;
+	case GL_PACK_SKIP_IMAGES: return 1;
+	case GL_PACK_SKIP_PIXELS: return 1;
+	case GL_PACK_SKIP_ROWS: return 1;
+	case GL_PACK_SWAP_BYTES: return 1;
+	case GL_PIXEL_PACK_BUFFER_BINDING: return 1;
+	case GL_PIXEL_UNPACK_BUFFER_BINDING: return 1;
+	case GL_POINT_FADE_THRESHOLD_SIZE: return 1;
+	case GL_PRIMITIVE_RESTART_INDEX: return 1;
+	case GL_PROGRAM_POINT_SIZE: return 1;
+	case GL_PROVOKING_VERTEX: return 1;
+	case GL_POINT_SIZE: return 1;
+	case GL_POINT_SIZE_GRANULARITY: return 1;
+	case GL_POINT_SIZE_RANGE: return 2;
+	case GL_POLYGON_OFFSET_FACTOR: return 1;
+	case GL_POLYGON_OFFSET_UNITS: return 1;
+	case GL_POLYGON_OFFSET_FILL: return 1;
+	case GL_POLYGON_OFFSET_LINE: return 1;
+	case GL_POLYGON_OFFSET_POINT: return 1;
+	case GL_POLYGON_SMOOTH: return 1;
+	case GL_POLYGON_SMOOTH_HINT: return 1;
+	case GL_SAMPLE_BUFFERS: return 1;
+	case GL_SAMPLE_COVERAGE_VALUE: return 1;
+	case GL_SAMPLE_COVERAGE_INVERT: return 1;
+	case GL_SAMPLER_BINDING: return 1;
+	case GL_SAMPLES: return 1;
+	case GL_SCISSOR_BOX: return 4;
+	case GL_SCISSOR_TEST: return 1;
+	case GL_STENCIL_BACK_PASS_DEPTH_FAIL: return 1;
+	case GL_STENCIL_BACK_PASS_DEPTH_PASS: return 1;
+	case GL_STENCIL_BACK_REF: return 1;
+	case GL_STENCIL_BACK_VALUE_MASK: return 1;
+	case GL_STENCIL_BACK_WRITEMASK: return 1;
+	case GL_STENCIL_CLEAR_VALUE: return 1;
+	case GL_STENCIL_FAIL: return 1;
+	case GL_STENCIL_FUNC: return 1;
+	case GL_STENCIL_PASS_DEPTH_FAIL: return 1;
+	case GL_STENCIL_PASS_DEPTH_PASS: return 1;
+	case GL_STENCIL_REF: return 1;
+	case GL_STENCIL_TEST: return 1;
+	case GL_STENCIL_VALUE_MASK: return 1;
+	case GL_STENCIL_WRITEMASK: return 1;
+	case GL_STEREO: return 1;
+	case GL_SUBPIXEL_BITS: return 1;
+	case GL_TEXTURE_BINDING_1D: return 1;
+	case GL_TEXTURE_BINDING_1D_ARRAY: return 1;
+	case GL_TEXTURE_BINDING_2D: return 1;
+	case GL_TEXTURE_BINDING_2D_ARRAY: return 1;
+	case GL_TEXTURE_BINDING_2D_MULTISAMPLE: return 1;
+	case GL_TEXTURE_BINDING_2D_MULTISAMPLE_ARRAY: return 1;
+	case GL_TEXTURE_BINDING_3D: return 1;
+	case GL_TEXTURE_BINDING_BUFFER: return 1;
+	case GL_TEXTURE_BINDING_CUBE_MAP: return 1;
+	case GL_TEXTURE_BINDING_RECTANGLE: return 1;
+	case GL_TEXTURE_COMPRESSION_HINT: return 1;
+	case GL_TIMESTAMP: return 1;
+	case GL_TRANSFORM_FEEDBACK_BUFFER_BINDING: return 1;
+	case GL_TRANSFORM_FEEDBACK_BUFFER_START: return 1;
+	case GL_TRANSFORM_FEEDBACK_BUFFER_SIZE: return 1;
+	case GL_UNIFORM_BUFFER_BINDING: return 1;
+	case GL_UNIFORM_BUFFER_START: return 1;
+	case GL_UNIFORM_BUFFER_SIZE: return 1;
+	case GL_UNPACK_ALIGNMENT: return 1;
+	case GL_UNPACK_IMAGE_HEIGHT: return 1;
+	case GL_UNPACK_LSB_FIRST: return 1;
+	case GL_UNPACK_ROW_LENGTH: return 1;
+	case GL_UNPACK_SKIP_IMAGES: return 1;
+	case GL_UNPACK_SKIP_PIXELS: return 1;
+	case GL_UNPACK_SKIP_ROWS: return 1;
+	case GL_UNPACK_SWAP_BYTES: return 1;
+	case GL_NUM_EXTENSIONS: return 1;
+	case GL_MAJOR_VERSION: return 1;
+	case GL_MINOR_VERSION: return 1;
+	case GL_CONTEXT_FLAGS: return 1;
+	case GL_VIEWPORT: return 1;
+	default: return 0;
+	}
+																				#else //GLWRAP_NO_ENUMS
+
+	return 0;
+
+																				#endif//GLWRAP_NO_ENUMS
+
+}
+
+inline int isGetValueAmount(GlobalParamName pname, int num)
+{
+	int n = getNumParamValues(pname);
+	return n == 0 || n == num;
+}
+
+inline GLint GetInteger(GlobalParamName pname)
+{
+	GLWRAP_ASSERT(isGetValueAmount(pname, 1), "Parameter has 1 component");
+
+	GLint param;
+	glGetIntegerv(pname, &param);
+	return param;
+}
+inline void GetInteger(GlobalParamName pname, GLint *params)
+{
+	glGetIntegerv(pname, params);
+}
+
+inline GLfloat GetFloat(GlobalParamName pname)
+{
+	GLWRAP_ASSERT(isGetValueAmount(pname, 1), "Parameter has 1 component");
+
+	GLfloat param;
+	glGetFloatv(pname, &param);
+	return param;
+}
+inline void GetFloat(GlobalParamName pname, GLfloat *params)
+{
+	glGetFloatv(pname, params);
+}
+
+inline GLboolean GetBoolean(GlobalParamName pname)
+{
+	GLWRAP_ASSERT(isGetValueAmount(pname, 1), "Parameter has 1 component");
+
+	GLboolean param;
+	glGetBooleanv(pname, &param);
+	return param;
+}
+inline void GetBoolean(GlobalParamName pname, GLboolean *params)
+{
+	glGetBooleanv(pname, params);
+}
+
+
+inline std::pair<GLint, GLint> GetIntegerPair(GlobalParamName pname)
+{
+	GLWRAP_ASSERT(isGetValueAmount(pname, 2), "Parameter has 2 components");
+
+	GLint pair[2];
+	glGetIntegerv(pname, pair);
+	return std::make_pair(pair[0], pair[1]);
+}
+
+inline std::pair<GLfloat, GLfloat> GetFloatPair(GlobalParamName pname)
+{
+	GLWRAP_ASSERT(isGetValueAmount(pname, 2), "Parameter has 2 components");
+
+	GLfloat pair[2];
+	glGetFloatv(pname, pair);
+	return std::make_pair(pair[0], pair[1]);
+}
+
+inline Color GetColor(GlobalParamName pname)
+{
+	GLWRAP_ASSERT(isGetValueAmount(pname, 4), "Parameter has 4 components");
+
+	GLfloat params[4];
+	glGetFloatv(pname, params);
+	return Color(params);
+}
+
 // --------
 // | Handle
 // --------
@@ -499,9 +961,9 @@ protected:
 	GLuint m_handle;
 };
 
-// --------------
-// | ActiveHandle
-// --------------
+// -------------
+// | BoundHandle
+// -------------
 
 class BoundHandle
 {
@@ -625,9 +1087,9 @@ const Filter Filter::Nearest(GL_NEAREST, GL_NEAREST);
 const Filter Filter::Bilinear(GL_LINEAR_MIPMAP_NEAREST, GL_LINEAR);
 const Filter Filter::Trilinear(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 
-// ---------------
-// | ActiveTexture
-// ---------------
+// --------------
+// | BoundTexture
+// --------------
 
 class BoundTexture : public TBoundHandle
 {
@@ -771,9 +1233,9 @@ public:
 GLWRAP_MAKE_OCLASS_BEGIN(OTexture, Texture);
 GLWRAP_MAKE_OCLASS_END();
 
-// -----------------
-// | ActiveTexture3D
-// -----------------
+// ----------------
+// | BoundTexture3D
+// ----------------
 
 class BoundTexture3D : public BoundTexture
 {
@@ -879,9 +1341,9 @@ GLWRAP_MAKE_OCLASS_END();
 
 																				#ifndef GLWRAP_NO_SAMPLER
 
-// ---------------
-// | ActiveSampler
-// ---------------
+// --------------
+// | BoundSampler
+// --------------
 
 class BoundSampler : public BoundHandle
 {
@@ -1097,35 +1559,6 @@ const Blend Blend::AlphaBlend(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 const Blend Blend::Opaque(GL_ONE, GL_ZERO);
 const Blend Blend::Mulitply(GL_ZERO, GL_SRC_COLOR);
 
-// -------
-// | Color
-// -------
-
-struct Color
-{
-public:
-	Color(float r, float g, float b, float a=1.0f)
-		: r(r), g(g), b(b), a(a)
-	{ }
-	static Color rgb(uint32_t col)
-	{
-		return Color(
-			(col >> 16 & 0xFF) / 255.0f,
-			(col >> 8  & 0xFF) / 255.0f,
-			(col >> 0  & 0xFF) / 255.0f);
-	}
-	static Color rgba(uint32_t col)
-	{
-		return Color(
-			(col >> 24 & 0xFF) / 255.0f,
-			(col >> 16 & 0xFF) / 255.0f,
-			(col >> 8  & 0xFF) / 255.0f,
-			(col >> 0  & 0xFF) / 255.0f);
-	}
-
-	float r, g, b, a;
-};
-
 // ---------------------
 // | VertexAttribPointer
 // ---------------------
@@ -1283,9 +1716,9 @@ GLWRAP_MAKE_OCLASS_BEGIN_NO_HANDLE(OShader, Shader);
 OShader(GLuint handle) : Shader(handle) { }
 GLWRAP_MAKE_OCLASS_END();
 
-// ---------------
-// | ActiveProgram
-// ---------------
+// --------------
+// | BoundProgram
+// --------------
 
 class BoundProgram : public BoundHandle
 {
@@ -1455,9 +1888,9 @@ public:
 GLWRAP_MAKE_OCLASS_BEGIN(OProgram, Program);
 GLWRAP_MAKE_OCLASS_END();
 
-// --------------
-// | ActiveBuffer
-// --------------
+// -------------
+// | BoundBuffer
+// -------------
 
 class BoundBuffer : public TBoundHandle
 {
@@ -1476,6 +1909,24 @@ public:
 	void Unbind()
 	{
 		glBindBuffer(m_target, 0);
+	}
+};
+
+// ---------------------
+// | TargetedBoundBuffer
+// ---------------------
+
+template <GLenum Target>
+class TargetedBoundBuffer : public BoundBuffer
+{
+public:
+	TargetedBoundBuffer()
+		: BoundBuffer(Target)
+	{ }
+	TargetedBoundBuffer(BoundBuffer b)
+		: BoundBuffer(Target)
+	{
+		GLWRAP_ASSERT(b.getTarget() == Target, "Buffer has the expected target");
 	}
 };
 
@@ -1539,159 +1990,9 @@ public:
 GLWRAP_MAKE_OCLASS_BEGIN(OBuffer, Buffer);
 GLWRAP_MAKE_OCLASS_END();
 
-// ---------
-// | TBuffer
-// ---------
-
-class TBuffer : public Buffer
-{
-public:
-	TBuffer()
-		: Buffer()
-		, m_target(GL_NONE)
-	{ }
-	explicit TBuffer(BufferTarget target)
-		: Buffer()
-		, m_target(target)
-	{
-	}
-	TBuffer(BufferTarget target, GLuint buffer)
-		: Buffer(buffer)
-		, m_target(target)
-	{
-		GLWRAP_TYPECHECK(glIsBuffer, buffer);
-	}
-	void swap(TBuffer& b)
-	{
-		Buffer::swap(b);
-		std::swap(m_target, b.m_target);
-	}
-	TBuffer& operator=(TBuffer b)
-	{
-		swap(b);
-		return *this;
-	}
-
-	using Buffer::Bind;
-	BoundBuffer Bind() const
-	{
-		GLWRAP_ASSERT(m_target != GL_NONE, "Buffer target is initialized");
-		Buffer::Bind(m_target);
-		return GLWRAP_ATTACH_HANDLE(BoundBuffer(m_target), m_handle);
-	}
-	void Unbind() const
-	{
-		GLWRAP_ASSERT(m_target != GL_NONE, "Buffer target is initialized");
-		Buffer::Unbind(m_target);
-	}
-
-	BufferTarget GetTarget() const
-	{
-		return m_target;
-	}
-
-	static TBuffer Create(BufferTarget target)
-	{
-		TBuffer buf(target);
-		buf.Gen();
-		return buf;
-	}
-private:
-	GLenum m_target;
-};
-
-GLWRAP_MAKE_OCLASS_BEGIN_NO_HANDLE(OTBuffer, TBuffer);
-OTBuffer(BufferTarget target) : TBuffer(target) { }
-OTBuffer(BufferTarget target, GLuint handle) : TBuffer(target, handle) { }
-GLWRAP_MAKE_OCLASS_END();
-
 // -------------------
-// | ActiveIndexBuffer
+// | BoundRenderbuffer
 // -------------------
-
-class BoundIndexBuffer : public BoundBuffer
-{
-public:
-	BoundIndexBuffer(IndexType indexType=GL_NONE)
-		: BoundBuffer(GL_ELEMENT_ARRAY_BUFFER)
-		, m_indexType(indexType)
-	{ }
-
-	IndexType getIndexType() const { return m_indexType; }
-
-	void DrawElements(RenderMode mode, GLsizei count, GLint offset=0) const
-	{
-		GLWRAP_CHECK_ACTIVE(GL_ELEMENT_ARRAY_BUFFER_BINDING, true);
-		glDrawElements(mode, count, m_indexType, (const GLvoid*)offset);
-	}
-private:
-	GLenum m_indexType;
-};
-
-// -------------
-// | IndexBuffer
-// -------------
-
-class IndexBuffer : public Buffer
-{
-public:
-	IndexBuffer()
-		: Buffer()
-		, m_type(GL_NONE)
-	{ }
-	explicit IndexBuffer(IndexType type)
-		: Buffer()
-		, m_type(type)
-	{
-	}
-	IndexBuffer(IndexType type, GLuint buffer)
-		: Buffer(buffer)
-		, m_type(type)
-	{
-		GLWRAP_TYPECHECK(glIsBuffer, buffer);
-	}
-	void swap(IndexBuffer& b)
-	{
-		Buffer::swap(b);
-		std::swap(m_type, b.m_type);
-	}
-	IndexBuffer& operator=(IndexBuffer b)
-	{
-		swap(b);
-		return *this;
-	}
-	BoundIndexBuffer Bind() const
-	{
-		Buffer::Bind(GL_ELEMENT_ARRAY_BUFFER);
-		return GLWRAP_ATTACH_HANDLE(BoundIndexBuffer(m_type), m_handle);
-	}
-	void Unbind()
-	{
-		Buffer::Unbind(GL_ELEMENT_ARRAY_BUFFER);
-	}
-	IndexType getIndexType() const
-	{
-		return m_type;
-	}
-
-	static IndexBuffer Create(IndexType type)
-	{
-		IndexBuffer buf(type);
-		buf.Gen();
-		return buf;
-	}
-private:
-	GLenum m_type;
-};
-
-GLWRAP_MAKE_OCLASS_BEGIN_NO_HANDLE(OIndexBuffer, IndexBuffer);
-OIndexBuffer(IndexType type) : IndexBuffer(type) { }
-OIndexBuffer(IndexType type, GLuint buffer) : IndexBuffer(type, buffer) { }
-GLWRAP_MAKE_OCLASS_END();
-
-// --------------------
-// | ActiveRenderbuffer
-// --------------------
 
 class BoundRenderbuffer : public TBoundHandle
 {
@@ -1772,9 +2073,9 @@ public:
 GLWRAP_MAKE_OCLASS_BEGIN(ORenderbuffer, Renderbuffer);
 GLWRAP_MAKE_OCLASS_END();
 
-// -------------------
-// | ActiveFramebuffer
-// -------------------
+// ------------------
+// | BoundFramebuffer
+// ------------------
 
 class BoundFramebuffer : public TBoundHandle
 {
@@ -1886,41 +2187,50 @@ public:
 GLWRAP_MAKE_OCLASS_BEGIN(OFramebuffer, Framebuffer);
 GLWRAP_MAKE_OCLASS_END();
 
-inline void clearStencil(GLint stencil)
+inline void DrawElements(RenderMode mode, GLsizei count, IndexType type, TargetedBoundBuffer<GL_ELEMENT_ARRAY_BUFFER> indexBuffer, unsigned int offset=0)
+{
+	GLWRAP_CHECK_ACTIVE_OUT(indexBuffer.isActive(GL_ELEMENT_ARRAY_BUFFER));
+	glDrawElements(mode, count, type, (void*)offset);
+}
+
+inline void DrawElements(RenderMode mode, GLsizei count, IndexType type, const GLvoid* indices)
+{
+	GLWRAP_AC_ASSERT(GetInteger(GL_ELEMENT_ARRAY_BUFFER_BINDING) == 0, "No element array buffer bound");
+	glDrawElements(mode, count, type, indices);
+}
+
+inline void DrawElements(RenderMode mode, GLsizei count, const GLuint* indices)
+{
+	DrawElements(mode, count, GL_UNSIGNED_INT, indices);
+}
+
+inline void DrawElements(RenderMode mode, GLsizei count, const GLushort* indices)
+{
+	DrawElements(mode, count, GL_UNSIGNED_SHORT, indices);
+}
+
+inline void DrawElements(RenderMode mode, GLsizei count, const GLubyte* indices)
+{
+	DrawElements(mode, count, GL_UNSIGNED_BYTE, indices);
+}
+
+inline void ClearStencil(GLint stencil)
 {
 	glClearStencil(stencil);
 }
 
-inline void clearDepth(GLclampd depth)
+inline void ClearDepth(GLclampd depth)
 {
 	glClearDepth(depth);
 }
 
-inline void clearColor(const Color& color)
+inline void ClearColor(const Color& color)
 {
 	glClearColor(color.r, color.g, color.b, color.a);
 }
 
-inline void clear(GLenum mask)
+inline void Clear(ClearMask mask)
 {
-	glClear(mask);
-}
-inline void clear(GLenum mask, const Color& color)
-{
-	clearColor(color);
-	glClear(mask);
-}
-inline void clear(GLenum mask, const Color& color, GLclampd depth)
-{
-	clearColor(color);
-	clearDepth(depth);
-	glClear(mask);
-}
-inline void clear(GLenum mask, const Color& color, GLclampd depth, GLint stencil)
-{
-	clearStencil(stencil);
-	clearColor(color);
-	clearDepth(depth);
 	glClear(mask);
 }
 
@@ -1935,6 +2245,8 @@ inline GLenum GetError()
 #undef GLWRAP_TYPECHECK2
 #undef GLWRAP_TYPECHECK
 #undef GLWRAP_CHECK_ACTIVE
+#undef GLWRAP_CHECK_ACTIVE_OUT
+#undef GLWRAP_AC_ASSERT
 #undef GLWRAP_ATTACH_HANDLE
 #undef GLWRAP_MAKE_OCLASS_BEGIN
 #undef GLWRAP_MAKE_OCLASS_BEGIN_NO_HANDLE
