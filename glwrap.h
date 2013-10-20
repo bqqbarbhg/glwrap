@@ -14,7 +14,11 @@
 #include <cassert>
 #endif
 
-namespace gw
+#ifndef GLWRAP_NAMESPACE_NAME
+#define GLWRAP_NAMESPACE_NAME gl
+#endif
+
+namespace GLWRAP_NAMESPACE_NAME
 {
 
 #ifdef GLWRAP_ENABLE_ASSERTS
@@ -2084,13 +2088,13 @@ public:
 		: TBoundHandle(target)
 	{ }
 
-	void Texture(FramebufferAttachment attachment, gw::Texture texture, GLint level=0)
+	void Texture(FramebufferAttachment attachment, GLWRAP_NAMESPACE_NAME::Texture texture, GLint level=0)
 	{
 		GLWRAP_CHECK_ACTIVE(GL_FRAMEBUFFER_BINDING, m_target == GL_FRAMEBUFFER);
 		GLWRAP_ASSERT(texture.initialized(), "Texture is initialized");
 		glFramebufferTexture(m_target, attachment, texture.get(), level);
 	}
-	void Texture2D(FramebufferAttachment attachment, BoundTexture textarget, gw::Texture texture, GLint level=0)
+	void Texture2D(FramebufferAttachment attachment, BoundTexture textarget, GLWRAP_NAMESPACE_NAME::Texture texture, GLint level = 0)
 	{
 		GLWRAP_CHECK_ACTIVE(GL_FRAMEBUFFER_BINDING, m_target == GL_FRAMEBUFFER);
 		GLWRAP_ASSERT(texture.initialized(), "Texture is initialized");
@@ -2239,7 +2243,7 @@ inline GLenum GetError()
 	return glGetError();
 }
 
-}//namespace gw
+}//namespace
 
 #undef GLWRAP_ASSERT
 #undef GLWRAP_TYPECHECK2
