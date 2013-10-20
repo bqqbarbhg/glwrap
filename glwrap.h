@@ -1433,9 +1433,9 @@ public:
 		: BoundTexture(target)
 	{ }
 
-	GLint GetWidth() const
+	GLint GetWidth(GLint level=0) const
 	{
-		return GetInteger(GL_TEXTURE_WIDTH);
+		return GetLevelInteger(GL_TEXTURE_WIDTH, level);
 	}
 
 	void SetWrap(const Wrap& wrap)
@@ -1517,13 +1517,13 @@ public:
 		: BoundTexture(target)
 	{ }
 		
-	GLint GetWidth() const
+	GLint GetWidth(GLint level=0) const
 	{
-		return GetInteger(GL_TEXTURE_WIDTH);
+		return GetLevelInteger(GL_TEXTURE_WIDTH, level);
 	}
-	GLint GetHeight() const
+	GLint GetHeight(GLint level=0) const
 	{
-		return GetInteger(GL_TEXTURE_HEIGHT);
+		return GetLevelInteger(GL_TEXTURE_HEIGHT, level);
 	}
 
 	void SetWrap(const Wrap& wrap)
@@ -1605,20 +1605,17 @@ public:
 	BoundTexture3D(TextureTarget target=GL_TEXTURE_3D)
 		: BoundTexture(target)
 	{ }
-	GLint GetWidth() const
+	GLint GetWidth(GLint level=0) const
 	{
-		GLWRAP_CHECK_ACTIVE(GL_TEXTURE_BINDING_3D, m_target == GL_TEXTURE_3D);
-		return GetInteger(GL_TEXTURE_WIDTH);
+		return GetLevelInteger(GL_TEXTURE_WIDTH, level);
 	}
-	GLint GetHeight() const
+	GLint GetHeight(GLint level = 0) const
 	{
-		GLWRAP_CHECK_ACTIVE(GL_TEXTURE_BINDING_3D, m_target == GL_TEXTURE_3D);
-		return GetInteger(GL_TEXTURE_HEIGHT);
+		return GetLevelInteger(GL_TEXTURE_HEIGHT, level);
 	}
-	GLint GetDepth() const
+	GLint GetDepth(GLint level = 0) const
 	{
-		GLWRAP_CHECK_ACTIVE(GL_TEXTURE_BINDING_3D, m_target == GL_TEXTURE_3D);
-		return GetInteger(GL_TEXTURE_DEPTH);
+		return GetLevelInteger(GL_TEXTURE_DEPTH, level);
 	}
 
 	void SetWrap(const Wrap& wrap)
