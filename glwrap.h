@@ -2328,45 +2328,6 @@ public:
 GLWRAP_MAKE_OCLASS_BEGIN(OBuffer, Buffer);
 GLWRAP_MAKE_OCLASS_END();
 
-// -------------
-// | IndexBuffer
-// -------------
-
-class IndexBuffer : public Buffer
-{
-public:
-	IndexBuffer()
-		: Buffer()
-	{ }
-	IndexBuffer(GLuint buffer)
-		: Buffer(buffer)
-	{
-	}
-	void swap(IndexBuffer& b)
-	{
-		Buffer::swap(b);
-	}
-
-	BoundBuffer Bind(BufferTarget target=GL_ELEMENT_ARRAY_BUFFER) const
-	{
-		return Buffer::Bind(target);
-	}
-	static void Unbind(BufferTarget target=GL_ELEMENT_ARRAY_BUFFER)
-	{
-		Buffer::Unbind(target);
-	}
-
-	static IndexBuffer Create()
-	{
-		IndexBuffer b;
-		b.Gen();
-		return b;
-	}
-};
-
-GLWRAP_MAKE_OCLASS_BEGIN(OIndexBuffer, IndexBuffer);
-GLWRAP_MAKE_OCLASS_END();
-
 // -------------------
 // | BoundRenderbuffer
 // -------------------
@@ -2605,6 +2566,109 @@ inline GLenum GetError()
 {
 	return glGetError();
 }
+
+#ifndef GLWRAP_NO_EXT
+
+namespace ext
+{
+
+// -------------
+// | IndexFormat
+// -------------
+
+struct IndexFormat
+{
+	IndexFormat()
+		: renderMode(GL_NONE)
+		, count(0)
+		, type(GL_NONE)
+	{ }
+	IndexFormat(RenderMode renderMode, GLuint count, IndexType type)
+		: renderMode(renderMode)
+		, count(count)
+		, type(type)
+	{ }
+
+	RenderMode renderMode;
+	GLuint count;
+	IndexType type;
+};
+
+// ------------------
+// | BoundIndexBuffer
+// ------------------
+
+class BoundIndexBuffer : public BoundBuffer
+{
+public:
+	BoundIndexBuffer(const IndexFormat& format)
+		: BoundBuffer(GL_ELEMENT_ARRAY_BUFFER)
+		, m_format(format)
+	{ }
+	BoundIndexBuffer(const BoundBuffer& buf, const IndexFormat& format)
+		: BoundBuffer(buf)
+		, m_format(format)
+	{ }
+
+	void Draw()
+	{
+		DrawElements(m_format.renderMode, m_format.count, m_format.type, *this);
+	}
+	void Draw(unsigned int count, unsigned int offset=0)
+	{
+		GLWRAP_ASSERT(offset + count <= m_format.count, "Not drawing too much indices");
+		DrawElements(m_format.renderMode, count, m_format.type, *this, offset);
+	}
+
+	IndexFormat getFormat() const { return m_format; }
+private:
+	IndexFormat m_format;
+};
+
+// -------------
+// | IndexBuffer
+// -------------
+
+class IndexBuffer : public Buffer
+{
+public:
+	IndexBuffer()
+		: Buffer()
+	{ }
+	IndexBuffer(GLuint buffer)
+		: Buffer(buffer)
+	{
+	}
+	void swap(IndexBuffer& b)
+	{
+		Buffer::swap(b);
+	}
+
+	BoundIndexBuffer Bind(BufferTarget target = GL_ELEMENT_ARRAY_BUFFER) const
+	{
+		return BoundIndexBuffer(Buffer::Bind(target), m_format);
+	}
+	static void Unbind(BufferTarget target = GL_ELEMENT_ARRAY_BUFFER)
+	{
+		Buffer::Unbind(target);
+	}
+
+	static IndexBuffer Create()
+	{
+		IndexBuffer b;
+		b.Gen();
+		return b;
+	}
+private:
+	IndexFormat m_format;
+};
+
+GLWRAP_MAKE_OCLASS_BEGIN(OIndexBuffer, IndexBuffer);
+GLWRAP_MAKE_OCLASS_END();
+
+}
+
+#endif
 
 }//namespace
 
