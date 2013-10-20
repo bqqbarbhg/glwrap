@@ -1057,6 +1057,17 @@ public:
 		m_handle = 0;
 		return handle;
 	}
+																				#ifndef GLWRAP_NO_EXPLICIT_OPERATORS
+	explicit operator bool()
+	{
+		return initialized();
+	}
+																				#else //GLWRAP_NO_EXPLICIT_OPERATORS
+	operator void*()
+	{
+		return initialized() ? this : 0;
+	}
+																				#endif//GLWRAP_NO_EXPLICIT_OPERATORS
 protected:
 	GLuint m_handle;
 };
@@ -2238,7 +2249,7 @@ public:
 		: TBoundHandle(target)
 	{ }
 
-	void BufferData(const GLvoid* data, GLsizei size, BufferUsage usage=GL_STATIC_DRAW)
+	void Data(const GLvoid* data, GLsizei size, BufferUsage usage=GL_STATIC_DRAW)
 	{
 		GLWRAP_CHECK_ACTIVE(GL_ARRAY_BUFFER_BINDING, m_target == GL_ARRAY_BUFFER);
 		GLWRAP_CHECK_ACTIVE(GL_ELEMENT_ARRAY_BUFFER_BINDING, m_target == GL_ELEMENT_ARRAY_BUFFER);
