@@ -11,8 +11,8 @@ Example
 GLuint tex;
 glGenTextures(1, &tex);
 glBindTexture(GL_TEXTURE_2D, tex);
-glTexParameteri(GL_TEXTURE_2D, GL_WRAP_S, GL_REPEAT);
-glTexParameteri(GL_TEXTURE_2D, GL_WRAP_T, GL_REPEAT);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 glBindTexture(GL_TEXTURE_2D, 0);
 glDeleteTextures(1, &tex);
 ```
