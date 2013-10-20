@@ -1146,14 +1146,10 @@ public:
 
 	WrapMode s, t, r;
 
-	static const Wrap Clamp;
-	static const Wrap Repeat;
-	static const Wrap Mirror;
+	static const Wrap Clamp() { return Wrap(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE); }
+	static const Wrap Repeat() { return Wrap(GL_REPEAT, GL_REPEAT); }
+	static const Wrap Mirror() { return Wrap(GL_MIRRORED_REPEAT, GL_MIRRORED_REPEAT); }
 };
-
-const Wrap Wrap::Clamp(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
-const Wrap Wrap::Repeat(GL_REPEAT, GL_REPEAT);
-const Wrap Wrap::Mirror(GL_MIRRORED_REPEAT, GL_MIRRORED_REPEAT);
 
 // --------
 // | Filter
@@ -1184,9 +1180,9 @@ public:
 																				#ifndef GLWRAP_FILTER_NO_ANISOTROPIC
 	GLint max_anisotropy;
 																				#endif//GLWRAP_FILTER_NO_ANISOTROPIC
-	static const Filter Nearest;
-	static const Filter Bilinear;
-	static const Filter Trilinear;
+	static Filter Nearest() { return Filter(GL_NEAREST, GL_NEAREST); }
+	static const Filter Bilinear() { return Filter(GL_LINEAR_MIPMAP_NEAREST, GL_LINEAR); }
+	static const Filter Trilinear() { return Filter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR); }
 																				#ifndef GLWRAP_FILTER_NO_ANISOTROPIC
 	static Filter Anisotropic(GLint max_anisotropy)
 	{
@@ -1194,9 +1190,6 @@ public:
 	}
 																				#endif//GLWRAP_FILTER_NO_ANISOTROPIC
 };
-const Filter Filter::Nearest(GL_NEAREST, GL_NEAREST);
-const Filter Filter::Bilinear(GL_LINEAR_MIPMAP_NEAREST, GL_LINEAR);
-const Filter Filter::Trilinear(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 
 // --------------
 // | BoundTexture
