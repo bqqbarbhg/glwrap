@@ -43,7 +43,7 @@ namespace gw
 
 #ifdef GLWRAP_ENABLE_ACTIVECHECK
 
-#define GLWRAP_ATTACH_HANDLE(active, handle) (ActiveHandle::attachHandle(active, handle))
+#define GLWRAP_ATTACH_HANDLE(active, handle) (BoundHandle::attachHandle(active, handle))
 #define GLWRAP_CHECK_ACTIVE(target, cond) if (cond) GLWRAP_ASSERT(isActive(target), "Handle is active")
 
 #else
@@ -75,7 +75,7 @@ public: \
 	OClassName& operator=(OClassName o) { swap(o); return *this; } \
 	~OClassName() \
 	{ \
-		free(); \
+		Delete(); \
 	} \
 private: \
 	OClassName(const OClassName&); \
@@ -92,7 +92,7 @@ public: \
 	OClassName& operator=(OClassName o) { swap(o); return *this; } \
 	~OClassName() \
 	{ \
-		free(); \
+		Delete(); \
 	} \
 private: \
 	OClassName(const OClassName&); \
@@ -503,10 +503,10 @@ protected:
 // | ActiveHandle
 // --------------
 
-class ActiveHandle
+class BoundHandle
 {
 public:
-	ActiveHandle()
+	BoundHandle()
 																				#ifdef  GLWRAP_ENABLE_ACTIVECHECK
 		: m_handle(0)
 																				#endif//GLWRAP_ENABLE_ACTIVECHECK
@@ -540,14 +540,14 @@ protected:
 																				#endif//GLWRAP_ENABLE_ACTIVECHECK
 };
 
-// ---------------
-// | TActiveHandle
-// ---------------
+// --------------
+// | TBoundHandle
+// --------------
 
-class TActiveHandle : public ActiveHandle
+class TBoundHandle : public BoundHandle
 {
 public:
-	TActiveHandle(GLenum target)
+	TBoundHandle(GLenum target)
 		: m_target(target)
 	{ }
 
@@ -629,21 +629,21 @@ const Filter Filter::Trilinear(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 // | ActiveTexture
 // ---------------
 
-class ActiveTexture : public TActiveHandle
+class BoundTexture : public TBoundHandle
 {
 public:
-	explicit ActiveTexture(TextureTarget target=GL_TEXTURE_2D)
-		: TActiveHandle(target)
+	explicit BoundTexture(TextureTarget target=GL_TEXTURE_2D)
+		: TBoundHandle(target)
 	{ }
-
-	int getWidth() const
+		
+	int GetWidth() const
 	{
 		GLWRAP_CHECK_ACTIVE(GL_TEXTURE_BINDING_2D, m_target == GL_TEXTURE_2D);
 		int w;
 		glGetTexLevelParameteriv(m_target, 0, GL_TEXTURE_WIDTH, &w);
 		return w;
 	}
-	int getHeight() const
+	int GetHeight() const
 	{
 		GLWRAP_CHECK_ACTIVE(GL_TEXTURE_BINDING_2D, m_target == GL_TEXTURE_2D);
 		int h;
@@ -651,7 +651,7 @@ public:
 		return h;
 	}
 
-	void setFilter(const Filter& filter)
+	void SetFilter(const Filter& filter)
 	{
 		GLWRAP_CHECK_ACTIVE(GL_TEXTURE_BINDING_2D, m_target == GL_TEXTURE_2D);
 
@@ -661,7 +661,7 @@ public:
 		glTexParameteri(m_target, GL_TEXTURE_MAX_ANISOTROPY_EXT, filter.max_anisotropy);
 																				#endif//GLWRAP_FILTER_NO_ANISOTROPIC
 	}
-	Filter getFilter() const
+	Filter GetFilter() const
 	{
 		GLWRAP_CHECK_ACTIVE(GL_TEXTURE_BINDING_2D, m_target == GL_TEXTURE_2D);
 
@@ -674,14 +674,14 @@ public:
 		return filter;
 	}
 
-	void setWrap(const Wrap& wrap)
+	void SetWrap(const Wrap& wrap)
 	{
 		GLWRAP_CHECK_ACTIVE(GL_TEXTURE_BINDING_2D, m_target == GL_TEXTURE_2D);
 
 		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, wrap.s);
 		glTexParameteri(m_target, GL_TEXTURE_WRAP_T, wrap.t);
 	}
-	Wrap getWrap() const
+	Wrap GetWrap() const
 	{
 		GLWRAP_CHECK_ACTIVE(GL_TEXTURE_BINDING_2D, m_target == GL_TEXTURE_2D);
 
@@ -691,13 +691,13 @@ public:
 		return wrap;
 	}
 
-	void image2D(GLint level, InternalFormat internalformat, GLint width, GLint height, GLint border, PixelFormat format, PixelType type, GLvoid* pixels)
+	void Image2D(GLint level, InternalFormat internalformat, GLint width, GLint height, GLint border, PixelFormat format, PixelType type, GLvoid* pixels)
 	{
 		GLWRAP_CHECK_ACTIVE(GL_TEXTURE_BINDING_2D, m_target == GL_TEXTURE_2D);
 		glTexImage2D(m_target, level, internalformat, width, height, border, format, type, pixels);
 	}
 
-	void unbind()
+	void Unbind()
 	{
 		glBindTexture(m_target, 0);
 	}
@@ -728,7 +728,7 @@ public:
 		swap(t);													
 		return *this;
 	}
-	void free()
+	void Delete()
 	{
 		if (m_handle)
 		{
@@ -737,33 +737,33 @@ public:
 		}
 	}
 
-	ActiveTexture bind(TextureTarget target=GL_TEXTURE_2D) const
+	BoundTexture Bind(TextureTarget target=GL_TEXTURE_2D) const
 	{
 		GLWRAP_ASSERT(m_handle != 0, "Texture is initialized");
 		glBindTexture(target, m_handle);
-		return GLWRAP_ATTACH_HANDLE(ActiveTexture(target), m_handle);
+		return GLWRAP_ATTACH_HANDLE(BoundTexture(target), m_handle);
 	}
-	static void unbind(TextureTarget target=GL_TEXTURE_2D)
+	static void Unbind(TextureTarget target=GL_TEXTURE_2D)
 	{
 		glBindTexture(target, 0);
 	}
-	static void enable()
+	static void Enable()
 	{
 		glEnable(GL_TEXTURE);
 	}
-	static void disable()
+	static void Disable()
 	{
 		glDisable(GL_TEXTURE);
 	}
 
-	void gen()
+	void Gen()
 	{
 		glGenTextures(1, &m_handle);
 	}
-	static Texture create()
+	static Texture Create()
 	{
 		Texture tex;
-		tex.gen();
+		tex.Gen();
 		return tex;
 	}
 	
@@ -775,35 +775,35 @@ GLWRAP_MAKE_OCLASS_END();
 // | ActiveTexture3D
 // -----------------
 
-class ActiveTexture3D : public ActiveTexture
+class BoundTexture3D : public BoundTexture
 {
 public:
-	ActiveTexture3D(TextureTarget target=GL_TEXTURE_3D)
-		: ActiveTexture(target)
+	BoundTexture3D(TextureTarget target=GL_TEXTURE_3D)
+		: BoundTexture(target)
 	{ }
-	int getWidth() const
+	int GetWidth() const
 	{
 		GLWRAP_CHECK_ACTIVE(GL_TEXTURE_BINDING_3D, m_target == GL_TEXTURE_3D);
-		return ActiveTexture::getWidth();
+		return BoundTexture::GetWidth();
 	}
-	int getHeight() const
+	int GetHeight() const
 	{
 		GLWRAP_CHECK_ACTIVE(GL_TEXTURE_BINDING_3D, m_target == GL_TEXTURE_3D);
-		return ActiveTexture::getHeight();
-	}
-
-	void setFilter(const Filter& filter)
-	{
-		GLWRAP_CHECK_ACTIVE(GL_TEXTURE_BINDING_3D, m_target == GL_TEXTURE_3D);
-		ActiveTexture::setFilter(filter);
-	}
-	Filter getFilter() const
-	{
-		GLWRAP_CHECK_ACTIVE(GL_TEXTURE_BINDING_3D, m_target == GL_TEXTURE_3D);
-		return ActiveTexture::getFilter();
+		return BoundTexture::GetHeight();
 	}
 
-	void setWrap(const Wrap& wrap)
+	void SetFilter(const Filter& filter)
+	{
+		GLWRAP_CHECK_ACTIVE(GL_TEXTURE_BINDING_3D, m_target == GL_TEXTURE_3D);
+		BoundTexture::SetFilter(filter);
+	}
+	Filter GetFilter() const
+	{
+		GLWRAP_CHECK_ACTIVE(GL_TEXTURE_BINDING_3D, m_target == GL_TEXTURE_3D);
+		return BoundTexture::GetFilter();
+	}
+
+	void SetWrap(const Wrap& wrap)
 	{
 		GLWRAP_CHECK_ACTIVE(GL_TEXTURE_BINDING_3D, m_target == GL_TEXTURE_3D);
 
@@ -812,7 +812,7 @@ public:
 		if (wrap.r != GL_NONE)
 			glTexParameteri(m_target, GL_TEXTURE_WRAP_R, wrap.r);
 	}
-	Wrap getWrap() const
+	Wrap GetWrap() const
 	{
 		GLWRAP_CHECK_ACTIVE(GL_TEXTURE_BINDING_3D, m_target == GL_TEXTURE_3D);
 
@@ -823,7 +823,7 @@ public:
 		return wrap;
 	}
 
-	void unbind()
+	void Unbind()
 	{
 		glBindTexture(m_target, 0);
 	}
@@ -856,20 +856,20 @@ public:
 		return *this;
 	}
 
-	ActiveTexture bind(TextureTarget target=GL_TEXTURE_3D) const
+	BoundTexture3D Bind(TextureTarget target=GL_TEXTURE_3D) const
 	{
-		Texture::bind(target);
-		return GLWRAP_ATTACH_HANDLE(ActiveTexture3D(target), m_handle);
+		Texture::Bind(target);
+		return GLWRAP_ATTACH_HANDLE(BoundTexture3D(target), m_handle);
 	}
-	static void unbind(TextureTarget target=GL_TEXTURE_3D)
+	static void Unbind(TextureTarget target=GL_TEXTURE_3D)
 	{
-		Texture::unbind(target);
+		Texture::Unbind(target);
 	}
 
-	static Texture3D create()
+	static Texture3D Create()
 	{
 		Texture3D t;
-		t.gen();
+		t.Gen();
 		return t;
 	}
 };
@@ -883,14 +883,14 @@ GLWRAP_MAKE_OCLASS_END();
 // | ActiveSampler
 // ---------------
 
-class ActiveSampler : public ActiveHandle
+class BoundSampler : public BoundHandle
 {
 public:
-	ActiveSampler(GLuint unit=0)
+	BoundSampler(GLuint unit=0)
 		: m_unit(unit)
 	{ }
 
-	void unbind()
+	void Unbind()
 	{
 		glBindSampler(m_unit, 0);
 	}
@@ -922,7 +922,7 @@ public:
 		swap(s);
 		return *this;
 	}
-	void free()
+	void Delete()
 	{
 		if (m_handle)
 		{
@@ -931,18 +931,18 @@ public:
 		}
 	}
 
-	ActiveSampler bind(GLuint unit=0) const
+	BoundSampler Bind(GLuint unit=0) const
 	{
 		GLWRAP_ASSERT(m_handle != 0, "Sampler is initialized");
 		glBindSampler(unit, m_handle);
-		return GLWRAP_ATTACH_HANDLE(ActiveSampler(unit), m_handle);
+		return GLWRAP_ATTACH_HANDLE(BoundSampler(unit), m_handle);
 	}
-	static void unbind(GLuint unit=0)
+	static void Unbind(GLuint unit=0)
 	{
 		glBindSampler(unit, 0);
 	}
 
-	void setFilter(const Filter& filter)
+	void SetFilter(const Filter& filter)
 	{
 		GLWRAP_ASSERT(m_handle != 0, "Sampler is initialized");
 		glSamplerParameteri(m_handle, GL_TEXTURE_MIN_FILTER, filter.min);
@@ -951,7 +951,7 @@ public:
 		glSamplerParameteri(m_handle, GL_TEXTURE_MAX_ANISOTROPY_EXT, filter.max_anisotropy);
 																				#endif//GLWRAP_FILTER_NO_ANISOTROPIC
 	}
-	Filter getFilter() const
+	Filter GetFilter() const
 	{
 		GLWRAP_ASSERT(m_handle != 0, "Sampler is initialized");
 		Filter filter;
@@ -963,7 +963,7 @@ public:
 		return filter;
 	}
 
-	void setWrap(const Wrap& wrap)
+	void SetWrap(const Wrap& wrap)
 	{
 		GLWRAP_ASSERT(m_handle != 0, "Sampler is initialized");
 		glSamplerParameteri(m_handle, GL_TEXTURE_WRAP_S, wrap.s);
@@ -971,7 +971,7 @@ public:
 		if (wrap.r != GL_NONE)
 			glSamplerParameteri(m_handle, GL_TEXTURE_WRAP_R, wrap.r);
 	}
-	Wrap getWrap() const
+	Wrap GetWrap() const
 	{
 		GLWRAP_ASSERT(m_handle != 0, "Sampler is initialized");
 		Wrap wrap;
@@ -981,16 +981,16 @@ public:
 		return wrap;
 	}
 
-	void gen()
+	void Gen()
 	{
 		GLWRAP_ASSERT(m_handle == 0, "Sampler is uninitialized");
 		glGenSamplers(1, &m_handle);
 	}
 
-	static Sampler create()
+	static Sampler Create()
 	{
 		Sampler s;
-		s.gen();
+		s.Gen();
 		return s;
 	}
 };
@@ -1043,7 +1043,7 @@ struct Blend
 	{ }
 																				#endif//GLWRAP_NO_BLEND_SEPARATE
 
-	void apply() const
+	void Apply() const
 	{
 		// If one of blend components is empty the other one must be
 		GLWRAP_ASSERT((src != GL_NONE) == (dst != GL_NONE), "Source and destination are both defined or undefined");
@@ -1145,13 +1145,13 @@ public:
 		, pointer(pointer)
 	{ }
 
-	void enable() const
+	void Enable() const
 	{
 		GLWRAP_ASSERT(size != -1, "VertexAttribPointer is initialized");
 		glEnableVertexAttribArray(index);
 		glVertexAttribPointer(index, size, type, normalized, stride, pointer);
 	}
-	void disable() const 
+	void Disable() const 
 	{
 		GLWRAP_ASSERT(size != -1, "VertexAttribPointer is initialized");
 		glDisableVertexAttribArray(index);
@@ -1207,7 +1207,7 @@ public:
 		swap(p);
 		return *this;
 	}
-	void free()
+	void Delete()
 	{
 		if (m_handle)
 		{
@@ -1216,37 +1216,37 @@ public:
 		}
 	}
 
-	void source(const GLchar* source)
+	void Source(const GLchar* source)
 	{
 		GLWRAP_ASSERT(m_handle, "Shader is initialized");
 		glShaderSource(m_handle, 1, &source, nullptr);
 	}
-	void source(const GLchar* source, GLint length)
+	void Source(const GLchar* source, GLint length)
 	{
 		GLWRAP_ASSERT(m_handle, "Shader is initialized");
 		glShaderSource(m_handle, 1, &source, &length);
 	}
-	void source(const std::string& source)
+	void Source(const std::string& source)
 	{
 		GLWRAP_ASSERT(m_handle, "Shader is initialized");
 		const GLchar* data = source.data();
 		GLint size = source.size();
 		glShaderSource(m_handle, 1, &data, &size);
 	}
-	void source(GLint num, const GLchar** sources, const GLint* lengths=nullptr)
+	void Source(GLint num, const GLchar** sources, const GLint* lengths=nullptr)
 	{
 		GLWRAP_ASSERT(m_handle, "Shader is initialized");
 		glShaderSource(m_handle, num, sources, lengths);
 	}
 
-	void compile()
+	void Compile()
 	{
 		GLWRAP_ASSERT(m_handle, "Shader is initialized");
-		GLWRAP_ASSERT(getParam(GL_SHADER_SOURCE_LENGTH) != 0, "Shader has no source");
+		GLWRAP_ASSERT(GetParam(GL_SHADER_SOURCE_LENGTH) != 0, "Shader has no source");
 		glCompileShader(m_handle);
 	}
 
-	GLint getParam(ShaderParamName pname) const
+	GLint GetParam(ShaderParamName pname) const
 	{
 		GLWRAP_ASSERT(m_handle, "Shader is initialized");
 		GLint t;
@@ -1254,26 +1254,26 @@ public:
 		return t;
 	}
 
-	GLint getInfoLogLength() const
+	GLint GetInfoLogLength() const
 	{
-		return getParam(GL_INFO_LOG_LENGTH);
+		return GetParam(GL_INFO_LOG_LENGTH);
 	}
-	void getInfoLog(GLsizei bufSize, GLsizei *length, GLchar* infoLog) const
+	void GetInfoLog(GLsizei bufSize, GLsizei *length, GLchar* infoLog) const
 	{
 		GLWRAP_ASSERT(m_handle, "Shader is initialized");
 		glGetShaderInfoLog(m_handle, bufSize, length, infoLog);
 	}
-	std::string getInfoLog() const
+	std::string GetInfoLog() const
 	{
 		std::string str;
-		GLint len = getInfoLogLength();
+		GLint len = GetInfoLogLength();
 		str.resize(len + 1);
-		getInfoLog(str.size(), nullptr, &str[0]);
+		GetInfoLog(str.size(), nullptr, &str[0]);
 		str.resize(len);
 		return str;
 	}
 
-	static Shader create(ShaderType type)
+	static Shader Create(ShaderType type)
 	{
 		return Shader(glCreateShader(type));
 	}
@@ -1287,31 +1287,31 @@ GLWRAP_MAKE_OCLASS_END();
 // | ActiveProgram
 // ---------------
 
-class ActiveProgram : public ActiveHandle
+class BoundProgram : public BoundHandle
 {
 public:
-	void uniform(GLint location, GLfloat v0) { GLWRAP_CHECK_ACTIVE(GL_CURRENT_PROGRAM, true); glUniform1f(location, v0); }
-	void uniform(GLint location, GLfloat v0, GLfloat v1) { GLWRAP_CHECK_ACTIVE(GL_CURRENT_PROGRAM, true); glUniform2f(location, v0, v1); }
-	void uniform(GLint location, GLfloat v0, GLfloat v1, GLfloat v2) { GLWRAP_CHECK_ACTIVE(GL_CURRENT_PROGRAM, true); glUniform3f(location, v0, v1, v2); }
-	void uniform(GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3) { GLWRAP_CHECK_ACTIVE(GL_CURRENT_PROGRAM, true); glUniform4f(location, v0, v1, v2, v3); }
+	void Uniform(GLint location, GLfloat v0) { GLWRAP_CHECK_ACTIVE(GL_CURRENT_PROGRAM, true); glUniform1f(location, v0); }
+	void Uniform(GLint location, GLfloat v0, GLfloat v1) { GLWRAP_CHECK_ACTIVE(GL_CURRENT_PROGRAM, true); glUniform2f(location, v0, v1); }
+	void Uniform(GLint location, GLfloat v0, GLfloat v1, GLfloat v2) { GLWRAP_CHECK_ACTIVE(GL_CURRENT_PROGRAM, true); glUniform3f(location, v0, v1, v2); }
+	void Uniform(GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3) { GLWRAP_CHECK_ACTIVE(GL_CURRENT_PROGRAM, true); glUniform4f(location, v0, v1, v2, v3); }
 
-	void uniform(GLint location, GLint v0) { GLWRAP_CHECK_ACTIVE(GL_CURRENT_PROGRAM, true); glUniform1i(location, v0); }
-	void uniform(GLint location, GLint v0, GLint v1) { GLWRAP_CHECK_ACTIVE(GL_CURRENT_PROGRAM, true); glUniform2i(location, v0, v1); }
-	void uniform(GLint location, GLint v0, GLint v1, GLint v2) { GLWRAP_CHECK_ACTIVE(GL_CURRENT_PROGRAM, true); glUniform3i(location, v0, v1, v2); }
-	void uniform(GLint location, GLint v0, GLint v1, GLint v2, GLint v3) { GLWRAP_CHECK_ACTIVE(GL_CURRENT_PROGRAM, true); glUniform4i(location, v0, v1, v2, v3); }
+	void Uniform(GLint location, GLint v0) { GLWRAP_CHECK_ACTIVE(GL_CURRENT_PROGRAM, true); glUniform1i(location, v0); }
+	void Uniform(GLint location, GLint v0, GLint v1) { GLWRAP_CHECK_ACTIVE(GL_CURRENT_PROGRAM, true); glUniform2i(location, v0, v1); }
+	void Uniform(GLint location, GLint v0, GLint v1, GLint v2) { GLWRAP_CHECK_ACTIVE(GL_CURRENT_PROGRAM, true); glUniform3i(location, v0, v1, v2); }
+	void Uniform(GLint location, GLint v0, GLint v1, GLint v2, GLint v3) { GLWRAP_CHECK_ACTIVE(GL_CURRENT_PROGRAM, true); glUniform4i(location, v0, v1, v2, v3); }
 
-	void uniform(GLint location, GLuint v0) { GLWRAP_CHECK_ACTIVE(GL_CURRENT_PROGRAM, true); glUniform1ui(location, v0); }
-	void uniform(GLint location, GLuint v0, GLuint v1) { GLWRAP_CHECK_ACTIVE(GL_CURRENT_PROGRAM, true); glUniform2ui(location, v0, v1); }
-	void uniform(GLint location, GLuint v0, GLuint v1, GLuint v2) { GLWRAP_CHECK_ACTIVE(GL_CURRENT_PROGRAM, true); glUniform3ui(location, v0, v1, v2); }
-	void uniform(GLint location, GLuint v0, GLuint v1, GLuint v2, GLuint v3) { GLWRAP_CHECK_ACTIVE(GL_CURRENT_PROGRAM, true); glUniform4ui(location, v0, v1, v2, v3); }
+	void Uniform(GLint location, GLuint v0) { GLWRAP_CHECK_ACTIVE(GL_CURRENT_PROGRAM, true); glUniform1ui(location, v0); }
+	void Uniform(GLint location, GLuint v0, GLuint v1) { GLWRAP_CHECK_ACTIVE(GL_CURRENT_PROGRAM, true); glUniform2ui(location, v0, v1); }
+	void Uniform(GLint location, GLuint v0, GLuint v1, GLuint v2) { GLWRAP_CHECK_ACTIVE(GL_CURRENT_PROGRAM, true); glUniform3ui(location, v0, v1, v2); }
+	void Uniform(GLint location, GLuint v0, GLuint v1, GLuint v2, GLuint v3) { GLWRAP_CHECK_ACTIVE(GL_CURRENT_PROGRAM, true); glUniform4ui(location, v0, v1, v2, v3); }
 
 																				#ifdef  GLWRAP_GLM
-	void uniform(GLint location, const glm::vec2& v) { GLWRAP_CHECK_ACTIVE(GL_CURRENT_PROGRAM, true); glUniform2fv(location, glm::value_ptr(v)); }
-	void uniform(GLint location, const glm::vec3& v) { GLWRAP_CHECK_ACTIVE(GL_CURRENT_PROGRAM, true); glUniform3fv(location, glm::value_ptr(v)); }
-	void uniform(GLint location, const glm::vec4& v) { GLWRAP_CHECK_ACTIVE(GL_CURRENT_PROGRAM, true); glUniform4fv(location, glm::value_ptr(v)); }
+	void Uniform(GLint location, const glm::vec2& v) { GLWRAP_CHECK_ACTIVE(GL_CURRENT_PROGRAM, true); glUniform2fv(location, glm::value_ptr(v)); }
+	void Uniform(GLint location, const glm::vec3& v) { GLWRAP_CHECK_ACTIVE(GL_CURRENT_PROGRAM, true); glUniform3fv(location, glm::value_ptr(v)); }
+	void Uniform(GLint location, const glm::vec4& v) { GLWRAP_CHECK_ACTIVE(GL_CURRENT_PROGRAM, true); glUniform4fv(location, glm::value_ptr(v)); }
 																				#endif//GLWRAP_GLM
 
-	void unuse()
+	void Unbind()
 	{
 		glUseProgram(0);
 	}
@@ -1341,7 +1341,7 @@ public:
 		swap(p);
 		return *this;
 	}
-	void free()
+	void Delete()
 	{
 		if (m_handle)
 		{
@@ -1350,34 +1350,39 @@ public:
 		}
 	}
 
-	void attachShader(Shader shader)
+	void AttachShader(Shader shader)
 	{
 		GLWRAP_ASSERT(m_handle != 0, "Program is initialized");
 		GLWRAP_ASSERT(shader.initialized(), "Shader to attach is initialized");
 		glAttachShader(m_handle, shader.get());
 	}
 
-	void detachShader(Shader shader)
+	void DetachShader(Shader shader)
 	{
 		GLWRAP_ASSERT(m_handle != 0, "Program is initialized");
 		GLWRAP_ASSERT(shader.initialized(), "Shader to attach is initialized");
 		glDetachShader(m_handle, shader.get());
 	}
 
-	void link()
+	void Link()
 	{
 		glLinkProgram(m_handle);
 	}
 
-	ActiveProgram use() const
+	BoundProgram Use() const
 	{
 		GLWRAP_ASSERT(m_handle != 0, "Program is initialized");
-		GLWRAP_ASSERT(getParam(GL_LINK_STATUS) == GL_TRUE, "Program is linked succesfully");
+		GLWRAP_ASSERT(GetParam(GL_LINK_STATUS) == GL_TRUE, "Program is linked succesfully");
 		glUseProgram(m_handle);
-		return GLWRAP_ATTACH_HANDLE(ActiveProgram(), m_handle);
+		return GLWRAP_ATTACH_HANDLE(BoundProgram(), m_handle);
 	}
 	
-	GLint getParam(ProgramParamName pname) const
+	BoundProgram Bind() const
+	{
+		return Use();
+	}
+
+	GLint GetParam(ProgramParamName pname) const
 	{
 		GLWRAP_ASSERT(m_handle != 0, "Program is initialized");
 		GLint t;
@@ -1385,63 +1390,63 @@ public:
 		return t;
 	}
 
-	GLint getUniformLocation(const GLchar* name) const
+	GLint GetUniformLocation(const GLchar* name) const
 	{
-		GLWRAP_ASSERT(getParam(GL_LINK_STATUS) == GL_TRUE, "Program is linked succesfully");
+		GLWRAP_ASSERT(GetParam(GL_LINK_STATUS) == GL_TRUE, "Program is linked succesfully");
 		return glGetUniformLocation(m_handle, name);
 	}
-	GLint getUniformLocation(const std::string& name) const
+	GLint GetUniformLocation(const std::string& name) const
 	{
-		GLWRAP_ASSERT(getParam(GL_LINK_STATUS) == GL_TRUE, "Program is linked succesfully");
-		return getUniformLocation(name.c_str());
+		GLWRAP_ASSERT(GetParam(GL_LINK_STATUS) == GL_TRUE, "Program is linked succesfully");
+		return GetUniformLocation(name.c_str());
 	}
 
-	GLint getAttribLocation(const GLchar* name) const
+	GLint GetAttribLocation(const GLchar* name) const
 	{
-		GLWRAP_ASSERT(getParam(GL_LINK_STATUS) == GL_TRUE, "Program is linked succesfully");
+		GLWRAP_ASSERT(GetParam(GL_LINK_STATUS) == GL_TRUE, "Program is linked succesfully");
 		return glGetAttribLocation(m_handle, name);
 	}
-	GLint getAttribLocation(const std::string& name) const
+	GLint GetAttribLocation(const std::string& name) const
 	{
-		GLWRAP_ASSERT(getParam(GL_LINK_STATUS) == GL_TRUE, "Program is linked succesfully");
+		GLWRAP_ASSERT(GetParam(GL_LINK_STATUS) == GL_TRUE, "Program is linked succesfully");
 		return glGetAttribLocation(m_handle, name.c_str());
 	}
 
-	void bindAttribLocation(GLuint index, const GLchar* name) const
+	void BindAttribLocation(GLuint index, const GLchar* name) const
 	{
-		GLWRAP_ASSERT(getParam(GL_LINK_STATUS) == GL_TRUE, "Program is linked succesfully");
+		GLWRAP_ASSERT(GetParam(GL_LINK_STATUS) == GL_TRUE, "Program is linked succesfully");
 		glBindAttribLocation(m_handle, index, name);
 	}
-	void bindAttrib(const VertexAttribPointer& attrib, const GLchar* name) const
+	void BindAttrib(const VertexAttribPointer& attrib, const GLchar* name) const
 	{
-		GLWRAP_ASSERT(getParam(GL_LINK_STATUS) == GL_TRUE, "Program is linked succesfully");
+		GLWRAP_ASSERT(GetParam(GL_LINK_STATUS) == GL_TRUE, "Program is linked succesfully");
 		glBindAttribLocation(m_handle, attrib.index, name);
 	}
-	void bindAttrib(const NamedVertexAttribPointer& attrib) const
+	void BindAttrib(const NamedVertexAttribPointer& attrib) const
 	{
-		GLWRAP_ASSERT(getParam(GL_LINK_STATUS) == GL_TRUE, "Program is linked succesfully");
+		GLWRAP_ASSERT(GetParam(GL_LINK_STATUS) == GL_TRUE, "Program is linked succesfully");
 		glBindAttribLocation(m_handle, attrib.index, attrib.name.c_str());
 	}
 
-	GLint getInfoLogLength() const
+	GLint GetInfoLogLength() const
 	{
-		return getParam(GL_INFO_LOG_LENGTH);
+		return GetParam(GL_INFO_LOG_LENGTH);
 	}
-	void getInfoLog(GLsizei bufSize, GLsizei *length, GLchar* infoLog) const
+	void GetInfoLog(GLsizei bufSize, GLsizei *length, GLchar* infoLog) const
 	{
 		glGetProgramInfoLog(m_handle, bufSize, length, infoLog);
 	}
-	std::string getInfoLog() const
+	std::string GetInfoLog() const
 	{
 		std::string str;
-		GLint len = getInfoLogLength();
+		GLint len = GetInfoLogLength();
 		str.resize(len + 1);
-		getInfoLog(str.size(), nullptr, &str[0]);
+		GetInfoLog(str.size(), nullptr, &str[0]);
 		str.resize(len);
 		return str;
 	}
 
-	static Program create()
+	static Program Create()
 	{
 		return Program(glCreateProgram());
 	}
@@ -1454,21 +1459,21 @@ GLWRAP_MAKE_OCLASS_END();
 // | ActiveBuffer
 // --------------
 
-class ActiveBuffer : public TActiveHandle
+class BoundBuffer : public TBoundHandle
 {
 public:
-	ActiveBuffer(BufferTarget target)
-		: TActiveHandle(target)
+	BoundBuffer(BufferTarget target)
+		: TBoundHandle(target)
 	{ }
 
-	void bufferData(const GLvoid* data, GLsizei size, BufferUsage usage=GL_STATIC_DRAW)
+	void BufferData(const GLvoid* data, GLsizei size, BufferUsage usage=GL_STATIC_DRAW)
 	{
 		GLWRAP_CHECK_ACTIVE(GL_ARRAY_BUFFER_BINDING, m_target == GL_ARRAY_BUFFER);
 		GLWRAP_CHECK_ACTIVE(GL_ELEMENT_ARRAY_BUFFER_BINDING, m_target == GL_ELEMENT_ARRAY_BUFFER);
 		glBufferData(m_target, size, data, usage);
 	}
 
-	void unbind()
+	void Unbind()
 	{
 		glBindBuffer(m_target, 0);
 	}
@@ -1498,7 +1503,7 @@ public:
 		swap(b);
 		return *this;
 	}
-	void free()
+	void Delete()
 	{
 		if (m_handle)
 		{
@@ -1507,26 +1512,26 @@ public:
 		}
 	}
 
-	ActiveBuffer bind(BufferTarget target) const
+	BoundBuffer Bind(BufferTarget target) const
 	{
 		GLWRAP_ASSERT(m_handle != 0, "Buffer is initialized");
 		glBindBuffer(target, m_handle);
-		return GLWRAP_ATTACH_HANDLE(ActiveBuffer(target), m_handle);
+		return GLWRAP_ATTACH_HANDLE(BoundBuffer(target), m_handle);
 	}
-	static void unbind(BufferTarget target)
+	static void Unbind(BufferTarget target)
 	{
 		glBindBuffer(target, 0);
 	}
 
-	void gen()
+	void Gen()
 	{
 		GLWRAP_ASSERT(m_handle == 0, "Buffer is uninitialized");
 		glGenBuffers(1, &m_handle);
 	}
-	static Buffer create()
+	static Buffer Create()
 	{
 		Buffer b;
-		b.gen();
+		b.Gen();
 		return b;
 	}
 };
@@ -1567,28 +1572,28 @@ public:
 		return *this;
 	}
 
-	using Buffer::bind;
-	ActiveBuffer bind() const
+	using Buffer::Bind;
+	BoundBuffer Bind() const
 	{
 		GLWRAP_ASSERT(m_target != GL_NONE, "Buffer target is initialized");
-		Buffer::bind(m_target);
-		return GLWRAP_ATTACH_HANDLE(ActiveBuffer(m_target), m_handle);
+		Buffer::Bind(m_target);
+		return GLWRAP_ATTACH_HANDLE(BoundBuffer(m_target), m_handle);
 	}
-	void unbind() const
+	void Unbind() const
 	{
 		GLWRAP_ASSERT(m_target != GL_NONE, "Buffer target is initialized");
-		Buffer::unbind(m_target);
+		Buffer::Unbind(m_target);
 	}
 
-	BufferTarget getTarget() const
+	BufferTarget GetTarget() const
 	{
 		return m_target;
 	}
 
-	static TBuffer create(BufferTarget target)
+	static TBuffer Create(BufferTarget target)
 	{
 		TBuffer buf(target);
-		buf.gen();
+		buf.Gen();
 		return buf;
 	}
 private:
@@ -1604,17 +1609,17 @@ GLWRAP_MAKE_OCLASS_END();
 // | ActiveIndexBuffer
 // -------------------
 
-class ActiveIndexBuffer : public ActiveBuffer
+class BoundIndexBuffer : public BoundBuffer
 {
 public:
-	ActiveIndexBuffer(IndexType indexType=GL_NONE)
-		: ActiveBuffer(GL_ELEMENT_ARRAY_BUFFER)
+	BoundIndexBuffer(IndexType indexType=GL_NONE)
+		: BoundBuffer(GL_ELEMENT_ARRAY_BUFFER)
 		, m_indexType(indexType)
 	{ }
 
 	IndexType getIndexType() const { return m_indexType; }
 
-	void drawElements(RenderMode mode, GLsizei count, GLint offset=0) const
+	void DrawElements(RenderMode mode, GLsizei count, GLint offset=0) const
 	{
 		GLWRAP_CHECK_ACTIVE(GL_ELEMENT_ARRAY_BUFFER_BINDING, true);
 		glDrawElements(mode, count, m_indexType, (const GLvoid*)offset);
@@ -1655,24 +1660,24 @@ public:
 		swap(b);
 		return *this;
 	}
-	ActiveIndexBuffer bind() const
+	BoundIndexBuffer Bind() const
 	{
-		Buffer::bind(GL_ELEMENT_ARRAY_BUFFER);
-		return GLWRAP_ATTACH_HANDLE(ActiveIndexBuffer(m_type), m_handle);
+		Buffer::Bind(GL_ELEMENT_ARRAY_BUFFER);
+		return GLWRAP_ATTACH_HANDLE(BoundIndexBuffer(m_type), m_handle);
 	}
-	void unbind()
+	void Unbind()
 	{
-		Buffer::unbind(GL_ELEMENT_ARRAY_BUFFER);
+		Buffer::Unbind(GL_ELEMENT_ARRAY_BUFFER);
 	}
 	IndexType getIndexType() const
 	{
 		return m_type;
 	}
 
-	static IndexBuffer create(IndexType type)
+	static IndexBuffer Create(IndexType type)
 	{
 		IndexBuffer buf(type);
-		buf.gen();
+		buf.Gen();
 		return buf;
 	}
 private:
@@ -1688,20 +1693,20 @@ GLWRAP_MAKE_OCLASS_END();
 // | ActiveRenderbuffer
 // --------------------
 
-class ActiveRenderbuffer : public TActiveHandle
+class BoundRenderbuffer : public TBoundHandle
 {
 public:
-	ActiveRenderbuffer(RenderbufferTarget target=GL_RENDERBUFFER)
-		: TActiveHandle(target)
+	BoundRenderbuffer(RenderbufferTarget target=GL_RENDERBUFFER)
+		: TBoundHandle(target)
 	{ }
 
-	void storage(InternalFormat internalformat, GLsizei width, GLsizei height)
+	void Storage(InternalFormat internalformat, GLsizei width, GLsizei height)
 	{
 		GLWRAP_CHECK_ACTIVE(GL_RENDERBUFFER_BINDING, m_target == GL_RENDERBUFFER);
 		glRenderbufferStorage(m_target, internalformat, width, height);
 	}
 
-	void unbind()
+	void Unbind()
 	{
 		glBindRenderbuffer(m_target, 0);
 	}
@@ -1731,7 +1736,7 @@ public:
 		swap(f);
 		return *this;
 	}
-	void free()
+	void Delete()
 	{
 		if (m_handle)
 		{
@@ -1740,26 +1745,26 @@ public:
 		}
 	}
 
-	ActiveRenderbuffer bind(RenderbufferTarget target=GL_RENDERBUFFER) const
+	BoundRenderbuffer Bind(RenderbufferTarget target=GL_RENDERBUFFER) const
 	{
 		GLWRAP_ASSERT(m_handle != 0, "Renerbuffer is initialized");
 		glBindRenderbuffer(target, m_handle);
-		return GLWRAP_ATTACH_HANDLE(ActiveRenderbuffer(target), m_handle);
+		return GLWRAP_ATTACH_HANDLE(BoundRenderbuffer(target), m_handle);
 	}
-	static void unbind(RenderbufferTarget target=GL_RENDERBUFFER)
+	static void Unbind(RenderbufferTarget target=GL_RENDERBUFFER)
 	{
 		glBindRenderbuffer(target, 0);
 	}
 
-	void gen()
+	void Gen()
 	{
 		GLWRAP_ASSERT(m_handle == 0, "Renderbuffer is uninitialized");
 		glGenRenderbuffers(1, &m_handle);
 	}
-	static Renderbuffer create()
+	static Renderbuffer Create()
 	{
 		Renderbuffer r;
-		r.gen();
+		r.Gen();
 		return r;
 	}
 };
@@ -1771,20 +1776,20 @@ GLWRAP_MAKE_OCLASS_END();
 // | ActiveFramebuffer
 // -------------------
 
-class ActiveFramebuffer : public TActiveHandle
+class BoundFramebuffer : public TBoundHandle
 {
 public:
-	ActiveFramebuffer(FramebufferTarget target=GL_FRAMEBUFFER)
-		: TActiveHandle(target)
+	BoundFramebuffer(FramebufferTarget target=GL_FRAMEBUFFER)
+		: TBoundHandle(target)
 	{ }
 
-	void texture(FramebufferAttachment attachment, Texture texture, GLint level=0)
+	void Texture(FramebufferAttachment attachment, gw::Texture texture, GLint level=0)
 	{
 		GLWRAP_CHECK_ACTIVE(GL_FRAMEBUFFER_BINDING, m_target == GL_FRAMEBUFFER);
 		GLWRAP_ASSERT(texture.initialized(), "Texture is initialized");
 		glFramebufferTexture(m_target, attachment, texture.get(), level);
 	}
-	void texture2D(FramebufferAttachment attachment, ActiveTexture textarget, Texture texture, GLint level=0)
+	void Texture2D(FramebufferAttachment attachment, BoundTexture textarget, gw::Texture texture, GLint level=0)
 	{
 		GLWRAP_CHECK_ACTIVE(GL_FRAMEBUFFER_BINDING, m_target == GL_FRAMEBUFFER);
 		GLWRAP_ASSERT(texture.initialized(), "Texture is initialized");
@@ -1796,7 +1801,7 @@ public:
 		glFramebufferTexture2D(m_target, attachment, textarget.getTarget(), texture.get(), level);
 	}
 
-	void renderbuffer(FramebufferAttachment attachment, ActiveRenderbuffer renderbuffertarget, Renderbuffer renderbuffer)
+	void Renderbuffer(FramebufferAttachment attachment, BoundRenderbuffer renderbuffertarget, Renderbuffer renderbuffer)
 	{
 		GLWRAP_CHECK_ACTIVE(GL_FRAMEBUFFER_BINDING, m_target == GL_FRAMEBUFFER);
 		GLWRAP_ASSERT(renderbuffer.initialized(), "Renderbuffer is initialized");
@@ -1808,13 +1813,13 @@ public:
 		glFramebufferRenderbuffer(m_target, attachment, renderbuffertarget.getTarget(), renderbuffer.get());
 	}
 
-	GLenum checkStatus()
+	GLenum CheckStatus()
 	{
 		GLWRAP_CHECK_ACTIVE(GL_FRAMEBUFFER_BINDING, m_target == GL_FRAMEBUFFER);
 		return glCheckFramebufferStatus(m_target);
 	}
 
-	void unbind()
+	void Unbind()
 	{
 		glBindFramebuffer(m_target, 0);
 	}
@@ -1844,7 +1849,7 @@ public:
 		swap(f);
 		return *this;
 	}
-	void free()
+	void Delete()
 	{
 		if (m_handle)
 		{
@@ -1853,27 +1858,27 @@ public:
 		}
 	}
 
-	ActiveFramebuffer bind(FramebufferTarget target=GL_FRAMEBUFFER) const
+	BoundFramebuffer Bind(FramebufferTarget target=GL_FRAMEBUFFER) const
 	{
 		GLWRAP_ASSERT(m_handle != 0, "Framebuffer is initialized");
 		glBindFramebuffer(target, m_handle);
-		return GLWRAP_ATTACH_HANDLE(ActiveFramebuffer(target), m_handle);
+		return GLWRAP_ATTACH_HANDLE(BoundFramebuffer(target), m_handle);
 	}
-	static void unbind(FramebufferTarget target=GL_FRAMEBUFFER)
+	static void Unbind(FramebufferTarget target=GL_FRAMEBUFFER)
 	{
 		glBindFramebuffer(target, 0);
 	}
 
-	void gen()
+	void Gen()
 	{
 		GLWRAP_ASSERT(m_handle == 0, "Framebuffer is uninitialized");
 		glGenFramebuffers(1, &m_handle);
 	}
 
-	static Framebuffer create()
+	static Framebuffer Create()
 	{
 		Framebuffer f;
-		f.gen();
+		f.Gen();
 		return f;
 	}
 };
@@ -1919,48 +1924,10 @@ inline void clear(GLenum mask, const Color& color, GLclampd depth, GLint stencil
 	glClear(mask);
 }
 
-inline GLenum getError()
+inline GLenum GetError()
 {
 	return glGetError();
 }
-
-inline void drawArrays(GLenum mode, GLint first, GLint count)
-{
-	glDrawArrays(mode, first, count);
-}
-
-inline void drawElements(GLenum mode, GLsizei count, GLenum type, const GLvoid* indices)
-{
-	glDrawElements(mode, count, type, indices);
-}
-inline void drawElements(GLenum mode, GLsizei count, GLenum type, GLuint offset=0)
-{
-	glDrawElements(mode, count, type, (const GLvoid*)offset);
-}
-inline void drawElements(GLenum mode, GLsizei count, ActiveIndexBuffer indexBuffer, GLuint offset=0)
-{
-	glDrawElements(mode, count, indexBuffer.getIndexType(), (const GLvoid*)offset);
-}
-
-																				#ifndef GLWRAP_NO_BASE_VERTEX																					
-inline void drawElements(GLenum mode, GLsizei count, GLenum type, const GLvoid* indices, GLint baseVertex)
-{
-	glDisableClientState(GL_ELEMENT_ARRAY_BUFFER);
-	glDrawElementsBaseVertex(mode, count, type, indices, baseVertex);
-}
-inline void drawElements(GLenum mode, GLsizei count, GLenum type, Buffer indexBuffer, GLuint offset, GLint baseVertex)
-{
-	glEnableClientState(GL_ELEMENT_ARRAY_BUFFER);
-	indexBuffer.bind(GL_ELEMENT_ARRAY_BUFFER);
-	glDrawElementsBaseVertex(mode, count, type, (const GLvoid*)offset, baseVertex);
-}
-inline void drawElements(GLenum mode, GLsizei count, IndexBuffer indexBuffer, GLuint offset, GLint baseVertex)
-{
-	glEnableClientState(GL_ELEMENT_ARRAY_BUFFER);	
-	indexBuffer.bind();
-	glDrawElementsBaseVertex(mode, count, indexBuffer.getIndexType(), (const GLvoid*)offset, baseVertex);
-}
-																				#endif
 
 }//namespace gw
 
