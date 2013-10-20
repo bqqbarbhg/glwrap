@@ -2328,6 +2328,45 @@ public:
 GLWRAP_MAKE_OCLASS_BEGIN(OBuffer, Buffer);
 GLWRAP_MAKE_OCLASS_END();
 
+// -------------
+// | IndexBuffer
+// -------------
+
+class IndexBuffer : public Buffer
+{
+public:
+	IndexBuffer()
+		: Buffer()
+	{ }
+	IndexBuffer(GLuint buffer)
+		: Buffer(buffer)
+	{
+	}
+	void swap(IndexBuffer& b)
+	{
+		Buffer::swap(b);
+	}
+
+	BoundBuffer Bind(BufferTarget target=GL_ELEMENT_ARRAY_BUFFER) const
+	{
+		return Buffer::Bind(target);
+	}
+	static void Unbind(BufferTarget target=GL_ELEMENT_ARRAY_BUFFER)
+	{
+		Buffer::Unbind(target);
+	}
+
+	static IndexBuffer Create()
+	{
+		IndexBuffer b;
+		b.Gen();
+		return b;
+	}
+};
+
+GLWRAP_MAKE_OCLASS_BEGIN(OIndexBuffer, IndexBuffer);
+GLWRAP_MAKE_OCLASS_END();
+
 // -------------------
 // | BoundRenderbuffer
 // -------------------
