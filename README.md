@@ -27,7 +27,7 @@ tex.Delete();
 ```cpp
 auto tex = gl::OTexture2D::Create();
 auto btex = tex.Bind();
-btex.SetWrap(gl::Wrap::Repeat);
+btex.SetWrap(gl::Wrap::Repeat());
 btex.Unbind();
 ```
 
