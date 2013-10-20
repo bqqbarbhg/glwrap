@@ -81,6 +81,7 @@ public: \
 	GLWRAP_MOVE(OClassName(OClassName&& o) : ClassName(std::move(o)) { o.m_handle = 0; }) \
 	void swap(OClassName& o) { ClassName::swap(o); } \
 	OClassName& operator=(OClassName o) { swap(o); return *this; } \
+	static OClassName Create() { return ClassName::Create(); } \
 	~OClassName() \
 	{ \
 		Delete(); \
@@ -516,6 +517,43 @@ enum EnumGlobalParamName
 	VIEWPORT = GL_VIEWPORT,
 };
 
+enum EnumTextureParamName
+{
+	TEXTURE_BASE_LEVEL = GL_TEXTURE_BASE_LEVEL,
+	TEXTURE_BORDER_COLOR = GL_TEXTURE_BORDER_COLOR,
+	TEXTURE_COMPARE_MODE = GL_TEXTURE_COMPARE_MODE,
+	TEXTURE_COMPARE_FUNC = GL_TEXTURE_COMPARE_FUNC,
+	TEXTURE_LOD_BIAS = GL_TEXTURE_LOD_BIAS,
+	TEXTURE_MAG_FILTER = GL_TEXTURE_MAG_FILTER,
+	TEXTURE_MAX_LEVEL = GL_TEXTURE_MAX_LEVEL,
+	TEXTURE_MAX_LOD = GL_TEXTURE_MAX_LOD,
+	TEXTURE_MIN_FILTER = GL_TEXTURE_MIN_FILTER,
+	TEXTURE_MIN_LOD = GL_TEXTURE_MIN_LOD,
+	TEXTURE_SWIZZLE_R = GL_TEXTURE_SWIZZLE_R,
+	TEXTURE_SWIZZLE_G = GL_TEXTURE_SWIZZLE_G,
+	TEXTURE_SWIZZLE_B = GL_TEXTURE_SWIZZLE_B,
+	TEXTURE_SWIZZLE_A = GL_TEXTURE_SWIZZLE_A,
+	TEXTURE_SWIZZLE_RGBA = GL_TEXTURE_SWIZZLE_RGBA,
+	TEXTURE_WRAP_S = GL_TEXTURE_WRAP_S,
+	TEXTURE_WRAP_T = GL_TEXTURE_WRAP_T,
+	TEXTURE_WRAP_R = GL_TEXTURE_WRAP_R,
+};
+
+enum EnumTextureLevelParamName
+{
+	TEXTURE_WIDTH = GL_TEXTURE_WIDTH,
+	TEXTURE_HEIGHT = GL_TEXTURE_HEIGHT,
+	TEXTURE_DEPTH = GL_TEXTURE_DEPTH,
+	TEXTURE_INTERNAL_FORMAT = GL_TEXTURE_INTERNAL_FORMAT,
+	TEXTURE_RED_SIZE = GL_TEXTURE_RED_SIZE,
+	TEXTURE_GREEN_SIZE = GL_TEXTURE_GREEN_SIZE,
+	TEXTURE_BLUE_SIZE = GL_TEXTURE_BLUE_SIZE,
+	TEXTURE_ALPHA_SIZE = GL_TEXTURE_ALPHA_SIZE,
+	TEXTURE_DEPTH_SIZE = GL_TEXTURE_DEPTH_SIZE,
+	TEXTURE_COMPRESSED = GL_TEXTURE_COMPRESSED,
+	TEXTURE_COMPRESSED_IMAGE_SIZE = GL_TEXTURE_COMPRESSED_IMAGE_SIZE,
+};
+
 enum EnumClearMask
 {
 	COLOR_BUFFER_BIT = GL_COLOR_BUFFER_BIT,
@@ -644,6 +682,14 @@ GLWRAP_ENUM_BEGIN(GlobalParamName)
 GLWRAP_ENUM_ALLOW(GlobalParamName, EnumGlobalParamName)
 GLWRAP_ENUM_END()
 
+GLWRAP_ENUM_BEGIN(TextureParamName)
+GLWRAP_ENUM_ALLOW(TextureParamName, EnumTextureParamName)
+GLWRAP_ENUM_END()
+
+GLWRAP_ENUM_BEGIN(TextureLevelParamName)
+GLWRAP_ENUM_ALLOW(TextureLevelParamName, EnumTextureLevelParamName)
+GLWRAP_ENUM_END()
+
 GLWRAP_ENUM_BEGIN(ClearMask)
 GLWRAP_ENUM_ALLOW(ClearMask, EnumClearMask)
 GLWRAP_ENUM_END()
@@ -684,7 +730,7 @@ public:
 // | Common functions
 // ------------------
 
-inline int getNumParamValues(GlobalParamName pname)
+inline int getNumGlobalParamValues(GlobalParamName pname)
 {
 																				#ifndef GLWRAP_NO_ENUMS
 	switch (pname)
@@ -850,22 +896,49 @@ inline int getNumParamValues(GlobalParamName pname)
 	default: return 0;
 	}
 																				#else //GLWRAP_NO_ENUMS
-
 	return 0;
-
 																				#endif//GLWRAP_NO_ENUMS
 
 }
 
-inline int isGetValueAmount(GlobalParamName pname, int num)
+inline int getNumTextureParamValues(TextureParamName pname)
 {
-	int n = getNumParamValues(pname);
-	return n == 0 || n == num;
+																				#ifndef GLWRAP_NO_ENUMS
+	switch (pname)
+	{
+	case GL_TEXTURE_BASE_LEVEL: return 1;
+	case GL_TEXTURE_BORDER_COLOR: return 4;
+	case GL_TEXTURE_COMPARE_MODE: return 1;
+	case GL_TEXTURE_COMPARE_FUNC: return 1;
+	case GL_TEXTURE_LOD_BIAS: return 1;
+	case GL_TEXTURE_MAG_FILTER: return 1;
+	case GL_TEXTURE_MAX_LEVEL: return 1;
+	case GL_TEXTURE_MAX_LOD: return 1;
+	case GL_TEXTURE_MIN_FILTER: return 1;
+	case GL_TEXTURE_MIN_LOD: return 1;
+	case GL_TEXTURE_SWIZZLE_R: return 1;
+	case GL_TEXTURE_SWIZZLE_G: return 1;
+	case GL_TEXTURE_SWIZZLE_B: return 1;
+	case GL_TEXTURE_SWIZZLE_A: return 1;
+	case GL_TEXTURE_SWIZZLE_RGBA: return 4;
+	case GL_TEXTURE_WRAP_S: return 1;
+	case GL_TEXTURE_WRAP_T: return 1;
+	case GL_TEXTURE_WRAP_R: return 1;
+	default: return 0;
+	}
+																				#else //GLWRAP_NO_ENUMS
+return 0;
+																				#endif//GLWRAP_NO_ENUMS
+}
+
+inline int isGetValueAmount(int amount, int num)
+{
+	return amount == 0 || amount == num;
 }
 
 inline GLint GetInteger(GlobalParamName pname)
 {
-	GLWRAP_ASSERT(isGetValueAmount(pname, 1), "Parameter has 1 component");
+	GLWRAP_ASSERT(isGetValueAmount(getNumGlobalParamValues(pname), 1), "Parameter has 1 component");
 
 	GLint param;
 	glGetIntegerv(pname, &param);
@@ -878,7 +951,7 @@ inline void GetInteger(GlobalParamName pname, GLint *params)
 
 inline GLfloat GetFloat(GlobalParamName pname)
 {
-	GLWRAP_ASSERT(isGetValueAmount(pname, 1), "Parameter has 1 component");
+	GLWRAP_ASSERT(isGetValueAmount(getNumGlobalParamValues(pname), 1), "Parameter has 1 component");
 
 	GLfloat param;
 	glGetFloatv(pname, &param);
@@ -891,7 +964,7 @@ inline void GetFloat(GlobalParamName pname, GLfloat *params)
 
 inline GLboolean GetBoolean(GlobalParamName pname)
 {
-	GLWRAP_ASSERT(isGetValueAmount(pname, 1), "Parameter has 1 component");
+	GLWRAP_ASSERT(isGetValueAmount(getNumGlobalParamValues(pname), 1), "Parameter has 1 component");
 
 	GLboolean param;
 	glGetBooleanv(pname, &param);
@@ -905,7 +978,7 @@ inline void GetBoolean(GlobalParamName pname, GLboolean *params)
 
 inline std::pair<GLint, GLint> GetIntegerPair(GlobalParamName pname)
 {
-	GLWRAP_ASSERT(isGetValueAmount(pname, 2), "Parameter has 2 components");
+	GLWRAP_ASSERT(isGetValueAmount(getNumGlobalParamValues(pname), 2), "Parameter has 2 components");
 
 	GLint pair[2];
 	glGetIntegerv(pname, pair);
@@ -914,7 +987,7 @@ inline std::pair<GLint, GLint> GetIntegerPair(GlobalParamName pname)
 
 inline std::pair<GLfloat, GLfloat> GetFloatPair(GlobalParamName pname)
 {
-	GLWRAP_ASSERT(isGetValueAmount(pname, 2), "Parameter has 2 components");
+	GLWRAP_ASSERT(isGetValueAmount(getNumGlobalParamValues(pname), 2), "Parameter has 2 components");
 
 	GLfloat pair[2];
 	glGetFloatv(pname, pair);
@@ -923,7 +996,7 @@ inline std::pair<GLfloat, GLfloat> GetFloatPair(GlobalParamName pname)
 
 inline Color GetColor(GlobalParamName pname)
 {
-	GLWRAP_ASSERT(isGetValueAmount(pname, 4), "Parameter has 4 components");
+	GLWRAP_ASSERT(isGetValueAmount(getNumGlobalParamValues(pname), 4), "Parameter has 4 components");
 
 	GLfloat params[4];
 	glGetFloatv(pname, params);
@@ -1095,31 +1168,113 @@ const Filter Filter::Trilinear(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 // | BoundTexture
 // --------------
 
+#ifndef GLWRAP_NO_TEXTURE3D
+#define GLWRAP_TEXTURE_ACTIVECHECK() \
+	GLWRAP_CHECK_ACTIVE(GL_TEXTURE_BINDING_1D, m_target == GL_TEXTURE_1D); \
+	GLWRAP_CHECK_ACTIVE(GL_TEXTURE_BINDING_2D, m_target == GL_TEXTURE_2D); \
+	GLWRAP_CHECK_ACTIVE(GL_TEXTURE_BINDING_3D, m_target == GL_TEXTURE_3D)
+#else
+#define GLWRAP_TEXTURE_ACTIVECHECK() \
+	GLWRAP_CHECK_ACTIVE(GL_TEXTURE_BINDING_1D, m_target == GL_TEXTURE_1D); \
+	GLWRAP_CHECK_ACTIVE(GL_TEXTURE_BINDING_2D, m_target == GL_TEXTURE_2D)
+#endif
+
 class BoundTexture : public TBoundHandle
 {
 public:
-	explicit BoundTexture(TextureTarget target=GL_TEXTURE_2D)
+	explicit BoundTexture(TextureTarget target)
 		: TBoundHandle(target)
 	{ }
-		
-	int GetWidth() const
+
+	GLint GetInteger(TextureParamName pname) const
 	{
-		GLWRAP_CHECK_ACTIVE(GL_TEXTURE_BINDING_2D, m_target == GL_TEXTURE_2D);
-		int w;
-		glGetTexLevelParameteriv(m_target, 0, GL_TEXTURE_WIDTH, &w);
-		return w;
+		GLWRAP_TEXTURE_ACTIVECHECK();
+		GLWRAP_ASSERT(isGetValueAmount(getNumTextureParamValues(pname), 1), "Parameter has 1 component");
+		GLint param;
+		glGetTexParameteriv(m_target, pname, &param);
+		return param;
 	}
-	int GetHeight() const
+	GLfloat GetInteger(TextureParamName pname, GLint *params) const
 	{
-		GLWRAP_CHECK_ACTIVE(GL_TEXTURE_BINDING_2D, m_target == GL_TEXTURE_2D);
-		int h;
-		glGetTexLevelParameteriv(m_target, 0, GL_TEXTURE_WIDTH, &h);
-		return h;
+		GLWRAP_TEXTURE_ACTIVECHECK();
+		glGetTexParameteriv(m_target, pname, params);
+	}
+	GLfloat GetFloat(TextureParamName pname)
+	{
+		GLWRAP_TEXTURE_ACTIVECHECK();
+		GLWRAP_ASSERT(isGetValueAmount(getNumTextureParamValues(pname), 1), "Parameter has 1 component");
+		GLfloat param;
+		glGetTexParameterfv(m_target, pname, &param);
+		return param;
+	}
+	GLfloat GetFloat(TextureParamName pname, GLfloat *params) const
+	{
+		GLWRAP_TEXTURE_ACTIVECHECK();
+		glGetTexParameterfv(m_target, pname, params);
+	}
+	GLboolean GetBoolean(TextureParamName pname) const
+	{
+		GLWRAP_TEXTURE_ACTIVECHECK();
+		GLWRAP_ASSERT(isGetValueAmount(getNumTextureParamValues(pname), 1), "Parameter has 1 component");
+		GLint param;
+		glGetTexParameteriv(m_target, pname, &param);
+		return param != 0;
+	}
+	Color GetColor(TextureParamName pname) const
+	{
+		GLWRAP_TEXTURE_ACTIVECHECK();
+		GLWRAP_ASSERT(isGetValueAmount(getNumTextureParamValues(pname), 4), "Parameter has 4 components");
+		GLfloat params[4];
+		glGetTexParameterfv(m_target, pname, params);
+		return Color(params);
+	}
+
+	GLint GetLevelInteger(TextureLevelParamName pname, GLint level = 0) const
+	{
+		GLWRAP_TEXTURE_ACTIVECHECK();
+		GLWRAP_ASSERT(isGetValueAmount(getNumTextureParamValues(pname), 1), "Parameter has 1 component");
+		GLint param;
+		glGetTexLevelParameteriv(m_target, level, pname, &param);
+		return param;
+	}
+	GLfloat GetLevelInteger(TextureLevelParamName pname, GLint *params, GLint level = 0) const
+	{
+		GLWRAP_TEXTURE_ACTIVECHECK();
+		glGetTexLevelParameteriv(m_target, level, pname, params);
+	}
+	GLfloat GetLevelFloat(TextureLevelParamName pname, GLint level=0)
+	{
+		GLWRAP_TEXTURE_ACTIVECHECK();
+		GLWRAP_ASSERT(isGetValueAmount(getNumTextureParamValues(pname), 1), "Parameter has 1 component");
+		GLfloat param;
+		glGetTexLevelParameterfv(m_target, level, pname, &param);
+		return param;
+	}
+	GLfloat GetLevelFloat(TextureLevelParamName pname, GLfloat *params, GLint level = 0) const
+	{
+		GLWRAP_TEXTURE_ACTIVECHECK();
+		glGetTexLevelParameterfv(m_target, level, pname, params);
+	}
+	GLboolean GetLevelBoolean(TextureLevelParamName pname, GLint level = 0) const
+	{
+		GLWRAP_TEXTURE_ACTIVECHECK();
+		GLWRAP_ASSERT(isGetValueAmount(getNumTextureParamValues(pname), 1), "Parameter has 1 component");
+		GLint param;
+		glGetTexLevelParameteriv(m_target, level, pname, &param);
+		return param != 0;
+	}
+	Color GetLevelColor(TextureLevelParamName pname, GLint level = 0) const
+	{
+		GLWRAP_TEXTURE_ACTIVECHECK();
+		GLWRAP_ASSERT(isGetValueAmount(getNumTextureParamValues(pname), 4), "Parameter has 4 components");
+		GLfloat params[4];
+		glGetTexLevelParameterfv(m_target, level, pname, params);
+		return Color(params);
 	}
 
 	void SetFilter(const Filter& filter)
 	{
-		GLWRAP_CHECK_ACTIVE(GL_TEXTURE_BINDING_2D, m_target == GL_TEXTURE_2D);
+		GLWRAP_TEXTURE_ACTIVECHECK();
 
 		glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, filter.min);
 		glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, filter.mag);
@@ -1129,7 +1284,7 @@ public:
 	}
 	Filter GetFilter() const
 	{
-		GLWRAP_CHECK_ACTIVE(GL_TEXTURE_BINDING_2D, m_target == GL_TEXTURE_2D);
+		GLWRAP_TEXTURE_ACTIVECHECK();
 
 		Filter filter;
 		glGetTexParameteriv(m_target, GL_TEXTURE_MIN_FILTER, (GLint*)&filter.min);
@@ -1138,6 +1293,214 @@ public:
 		glGetTexParameteriv(m_target, GL_TEXTURE_MAX_ANISOTROPY_EXT, &filter.max_anisotropy);
 																				#endif//GLWRAP_FILTER_NO_ANISOTROPIC
 		return filter;
+	}
+
+	void Image1D(GLint level, InternalFormat internalformat, GLint width, GLint border, PixelFormat format, PixelType type, GLvoid* pixels)
+	{
+		GLWRAP_TEXTURE_ACTIVECHECK();
+		glTexImage1D(m_target, level, internalformat, width, border, format, type, pixels);
+	}
+	void Image2D(GLint level, InternalFormat internalformat, GLint width, GLint height, GLint border, PixelFormat format, PixelType type, GLvoid* pixels)
+	{
+		GLWRAP_TEXTURE_ACTIVECHECK();
+		glTexImage2D(m_target, level, internalformat, width, height, border, format, type, pixels);
+	}
+																				#ifndef GLWRAP_NO_TEXTURE3D
+	void Image3D(GLint level, InternalFormat internalformat, GLint width, GLint height, GLint depth, GLint border, PixelFormat format, PixelType type, GLvoid* pixels)
+	{
+		GLWRAP_TEXTURE_ACTIVECHECK();
+		glTexImage3D(m_target, level, internalformat, width, height, depth, border, format, type, pixels);
+	}
+																				#endif//GLWRAP_NO_TEXTURE3D
+
+	void SetWrap(const Wrap& wrap)
+	{
+		GLWRAP_TEXTURE_ACTIVECHECK();
+
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, wrap.s);
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_T, wrap.t);
+																				#ifndef GLWRAP_NO_TEXTURE3D
+		if (wrap.r != GL_NONE)
+			glTexParameteri(m_target, GL_TEXTURE_WRAP_R, wrap.r);
+																				#endif//GLWRAP_NO_TEXTURE3D
+	}
+	Wrap GetWrap() const
+	{
+		GLWRAP_TEXTURE_ACTIVECHECK();
+
+		Wrap wrap;
+		glGetTexParameteriv(m_target, GL_TEXTURE_WRAP_S, (GLint*)&wrap.s);
+		glGetTexParameteriv(m_target, GL_TEXTURE_WRAP_T, (GLint*)&wrap.t);
+																				#ifndef GLWRAP_NO_TEXTURE3D
+		glGetTexParameteriv(m_target, GL_TEXTURE_WRAP_R, (GLint*)&wrap.r);
+																				#endif//GLWRAP_NO_TEXTURE3D
+		return wrap;
+	}
+
+	void Unbind()
+	{
+		glBindTexture(m_target, 0);
+	}
+};
+
+// ---------
+// | Texture
+// ---------
+
+class Texture : public Handle
+{
+public:
+	Texture()
+		: Handle()
+	{ }
+	explicit Texture(GLuint handle)
+		: Handle(handle)
+	{
+		GLWRAP_TYPECHECK(glIsTexture, handle);
+	}
+	void swap(Texture& tex)
+	{
+		Handle::swap(tex);
+	}
+
+	void Delete()
+	{
+		if (m_handle)
+		{
+			glDeleteTextures(1, &m_handle);
+			m_handle = 0;
+		}
+	}
+
+	BoundTexture Bind(TextureTarget target) const
+	{
+		GLWRAP_ASSERT(m_handle != 0, "Texture is initialized");
+		glBindTexture(target, m_handle);
+		return GLWRAP_ATTACH_HANDLE(BoundTexture(target), m_handle);
+	}
+
+	static void Unbind(TextureTarget target)
+	{
+		glBindTexture(target, 0);
+	}
+
+	void Gen()
+	{
+		glGenTextures(1, &m_handle);
+	}
+	static Texture Create()
+	{
+		Texture tex;
+		tex.Gen();
+		return tex;
+	}
+};
+
+GLWRAP_MAKE_OCLASS_BEGIN(OTexture, Texture);
+GLWRAP_MAKE_OCLASS_END();
+
+// ----------------
+// | BoundTexture1D
+// ----------------
+
+class BoundTexture1D : public BoundTexture
+{
+public:
+	explicit BoundTexture1D(TextureTarget target = GL_TEXTURE_1D)
+		: BoundTexture(target)
+	{ }
+
+	GLint GetWidth() const
+	{
+		return GetInteger(GL_TEXTURE_WIDTH);
+	}
+
+	void SetWrap(const Wrap& wrap)
+	{
+		GLWRAP_CHECK_ACTIVE(GL_TEXTURE_BINDING_1D, m_target == GL_TEXTURE_1D);
+
+		glTexParameteri(m_target, GL_TEXTURE_WRAP_S, wrap.s);
+	}
+	Wrap GetWrap() const
+	{
+		GLWRAP_CHECK_ACTIVE(GL_TEXTURE_BINDING_1D, m_target == GL_TEXTURE_1D);
+
+		Wrap wrap;
+		glGetTexParameteriv(m_target, GL_TEXTURE_WRAP_S, (GLint*)&wrap.s);
+		return wrap;
+	}
+
+	void Image(GLint level, InternalFormat internalformat, GLint width, GLint border, PixelFormat format, PixelType type, GLvoid* pixels)
+	{
+		Image1D(level, internalformat, width, border, format, type, pixels);
+	}
+
+	void Unbind()
+	{
+		glBindTexture(m_target, 0);
+	}
+};
+
+// -----------
+// | Texture1D
+// -----------
+
+class Texture1D : public Texture
+{
+public:
+	Texture1D()
+		: Texture()
+	{
+	}
+	explicit Texture1D(GLuint handle)
+		: Texture(handle)
+	{
+	}
+	void swap(Texture1D& tex)
+	{
+		Handle::swap(tex);
+	}
+
+	BoundTexture1D Bind(TextureTarget target = GL_TEXTURE_1D) const
+	{
+		GLWRAP_ASSERT(m_handle != 0, "Texture is initialized");
+		glBindTexture(target, m_handle);
+		return GLWRAP_ATTACH_HANDLE(BoundTexture1D(target), m_handle);
+	}
+	static void Unbind(TextureTarget target = GL_TEXTURE_1D)
+	{
+		glBindTexture(target, 0);
+	}
+
+	static Texture1D Create()
+	{
+		Texture1D tex;
+		tex.Gen();
+		return tex;
+	}
+};
+GLWRAP_MAKE_OCLASS_BEGIN(OTexture1D, Texture1D);
+GLWRAP_MAKE_OCLASS_END();
+
+
+// ----------------
+// | BoundTexture2D
+// ----------------
+
+class BoundTexture2D : public BoundTexture
+{
+public:
+	explicit BoundTexture2D(TextureTarget target = GL_TEXTURE_2D)
+		: BoundTexture(target)
+	{ }
+		
+	GLint GetWidth() const
+	{
+		return GetInteger(GL_TEXTURE_WIDTH);
+	}
+	GLint GetHeight() const
+	{
+		return GetInteger(GL_TEXTURE_HEIGHT);
 	}
 
 	void SetWrap(const Wrap& wrap)
@@ -1157,10 +1520,9 @@ public:
 		return wrap;
 	}
 
-	void Image2D(GLint level, InternalFormat internalformat, GLint width, GLint height, GLint border, PixelFormat format, PixelType type, GLvoid* pixels)
+	void Image(GLint level, InternalFormat internalformat, GLint width, GLint height, GLint border, PixelFormat format, PixelType type, GLvoid* pixels)
 	{
-		GLWRAP_CHECK_ACTIVE(GL_TEXTURE_BINDING_2D, m_target == GL_TEXTURE_2D);
-		glTexImage2D(m_target, level, internalformat, width, height, border, format, type, pixels);
+		Image2D(level, internalformat, width, height, border, format, type, pixels);
 	}
 
 	void Unbind()
@@ -1169,72 +1531,45 @@ public:
 	}
 };
 
-// ---------
-// | Texture
-// ---------
+// -----------
+// | Texture2D
+// -----------
 
-class Texture : public Handle
+class Texture2D : public Texture
 {
 public:
-	Texture()
-		: Handle()
+	Texture2D()
+		: Texture()
 	{
 	}
-	explicit Texture(GLuint handle)
-		: Handle(handle)
+	explicit Texture2D(GLuint handle)
+		: Texture(handle)
 	{
-		GLWRAP_TYPECHECK(glIsTexture, handle);
 	}
-	void swap(Texture& tex)
+	void swap(Texture2D& tex)
 	{
 		Handle::swap(tex);
 	}
-	Texture& operator=(Texture t)
-	{
-		swap(t);													
-		return *this;
-	}
-	void Delete()
-	{
-		if (m_handle)
-		{
-			glDeleteTextures(1, &m_handle);
-			m_handle = 0;
-		}
-	}
 
-	BoundTexture Bind(TextureTarget target=GL_TEXTURE_2D) const
+	BoundTexture2D Bind(TextureTarget target=GL_TEXTURE_2D) const
 	{
 		GLWRAP_ASSERT(m_handle != 0, "Texture is initialized");
 		glBindTexture(target, m_handle);
-		return GLWRAP_ATTACH_HANDLE(BoundTexture(target), m_handle);
+		return GLWRAP_ATTACH_HANDLE(BoundTexture2D(target), m_handle);
 	}
 	static void Unbind(TextureTarget target=GL_TEXTURE_2D)
 	{
 		glBindTexture(target, 0);
 	}
-	static void Enable()
-	{
-		glEnable(GL_TEXTURE);
-	}
-	static void Disable()
-	{
-		glDisable(GL_TEXTURE);
-	}
 
-	void Gen()
+	static Texture2D Create()
 	{
-		glGenTextures(1, &m_handle);
-	}
-	static Texture Create()
-	{
-		Texture tex;
+		Texture2D tex;
 		tex.Gen();
 		return tex;
 	}
-	
 };
-GLWRAP_MAKE_OCLASS_BEGIN(OTexture, Texture);
+GLWRAP_MAKE_OCLASS_BEGIN(OTexture2D, Texture2D);
 GLWRAP_MAKE_OCLASS_END();
 
 // ----------------
@@ -1247,26 +1582,20 @@ public:
 	BoundTexture3D(TextureTarget target=GL_TEXTURE_3D)
 		: BoundTexture(target)
 	{ }
-	int GetWidth() const
+	GLint GetWidth() const
 	{
 		GLWRAP_CHECK_ACTIVE(GL_TEXTURE_BINDING_3D, m_target == GL_TEXTURE_3D);
-		return BoundTexture::GetWidth();
+		return GetInteger(GL_TEXTURE_WIDTH);
 	}
-	int GetHeight() const
+	GLint GetHeight() const
 	{
 		GLWRAP_CHECK_ACTIVE(GL_TEXTURE_BINDING_3D, m_target == GL_TEXTURE_3D);
-		return BoundTexture::GetHeight();
+		return GetInteger(GL_TEXTURE_HEIGHT);
 	}
-
-	void SetFilter(const Filter& filter)
+	GLint GetDepth() const
 	{
 		GLWRAP_CHECK_ACTIVE(GL_TEXTURE_BINDING_3D, m_target == GL_TEXTURE_3D);
-		BoundTexture::SetFilter(filter);
-	}
-	Filter GetFilter() const
-	{
-		GLWRAP_CHECK_ACTIVE(GL_TEXTURE_BINDING_3D, m_target == GL_TEXTURE_3D);
-		return BoundTexture::GetFilter();
+		return GetInteger(GL_TEXTURE_DEPTH);
 	}
 
 	void SetWrap(const Wrap& wrap)
@@ -1287,6 +1616,11 @@ public:
 		glGetTexParameteriv(m_target, GL_TEXTURE_WRAP_T, (GLint*)&wrap.t);
 		glGetTexParameteriv(m_target, GL_TEXTURE_WRAP_R, (GLint*)&wrap.r);
 		return wrap;
+	}
+
+	void Image(GLint level, InternalFormat internalformat, GLint width, GLint height, GLint depth, GLint border, PixelFormat format, PixelType type, GLvoid* pixels)
+	{
+		Image3D(level, internalformat, width, height, depth, border, format, type, pixels);
 	}
 
 	void Unbind()
@@ -1315,11 +1649,6 @@ public:
 	void swap(Texture3D& tex)
 	{
 		Texture::swap(tex);
-	}
-	Texture3D& operator=(Texture3D t)
-	{
-		swap(t);													
-		return *this;
 	}
 
 	BoundTexture3D Bind(TextureTarget target=GL_TEXTURE_3D) const
@@ -1382,11 +1711,6 @@ public:
 	void swap(Sampler& s)
 	{
 		Handle::swap(s);
-	}
-	Sampler& operator=(Sampler s)
-	{
-		swap(s);
-		return *this;
 	}
 	void Delete()
 	{
@@ -1639,11 +1963,6 @@ public:
 	{
 		Handle::swap(s);
 	}
-	Shader& operator=(Shader p)
-	{
-		swap(p);
-		return *this;
-	}
 	void Delete()
 	{
 		if (m_handle)
@@ -1718,6 +2037,7 @@ public:
 
 GLWRAP_MAKE_OCLASS_BEGIN_NO_HANDLE(OShader, Shader);
 OShader(GLuint handle) : Shader(handle) { }
+static OShader Create(ShaderType type) { return Shader::Create(type); }
 GLWRAP_MAKE_OCLASS_END();
 
 // --------------
@@ -1772,11 +2092,6 @@ public:
 	void swap(Program& p)
 	{
 		Handle::swap(p);
-	}
-	Program& operator=(Program p)
-	{
-		swap(p);
-		return *this;
 	}
 	void Delete()
 	{
@@ -1953,11 +2268,6 @@ public:
 	{
 		Handle::swap(b);
 	}
-	Buffer& operator=(Buffer b)
-	{
-		swap(b);
-		return *this;
-	}
 	void Delete()
 	{
 		if (m_handle)
@@ -2035,11 +2345,6 @@ public:
 	void swap(Renderbuffer& f)
 	{
 		Handle::swap(f);
-	}
-	Renderbuffer& operator=(Renderbuffer f)
-	{
-		swap(f);
-		return *this;
 	}
 	void Delete()
 	{
@@ -2149,11 +2454,6 @@ public:
 	{
 		Handle::swap(f);
 	}
-	Framebuffer& operator=(Framebuffer f)
-	{
-		swap(f);
-		return *this;
-	}
 	void Delete()
 	{
 		if (m_handle)
@@ -2252,6 +2552,7 @@ inline GLenum GetError()
 #undef GLWRAP_CHECK_ACTIVE_OUT
 #undef GLWRAP_AC_ASSERT
 #undef GLWRAP_ATTACH_HANDLE
+#undef GLWRAP_TEXTURE_ACTIVECHECK
 #undef GLWRAP_MAKE_OCLASS_BEGIN
 #undef GLWRAP_MAKE_OCLASS_BEGIN_NO_HANDLE
 #undef GLWRAP_MAKE_OCLASS_END
