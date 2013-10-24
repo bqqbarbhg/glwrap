@@ -2613,41 +2613,40 @@ GLint getIndexTypeSize(IndexType type)
 class BoundIndexBuffer : public BoundBuffer
 {
 public:
-	BoundIndexBuffer(const IndexFormat& format)
+	BoundIndexBuffer(IndexFormat& format)
 		: BoundBuffer(GL_ELEMENT_ARRAY_BUFFER)
-		, m_format(format)
+		, m_format(&format)
 	{ }
-	BoundIndexBuffer(const BoundBuffer& buf, const IndexFormat& format)
+	BoundIndexBuffer(const BoundBuffer& buf, IndexFormat& format)
 		: BoundBuffer(buf)
-		, m_format(format)
+		, m_format(&format)
 	{ }
 
 	void Draw()
 	{
-		GLWRAP_ASSERT(m_format.renderMode != GL_NONE && m_format.type != GL_NONE, "Format is initialized");
-		GLWRAP_ASSERT(m_format.count != 0, "Format size is specified");
-		DrawElements(m_format.renderMode, m_format.count, m_format.type, *this);
+		GLWRAP_ASSERT(m_format->renderMode != GL_NONE && m_format->type != GL_NONE, "Format is initialized");
+		GLWRAP_ASSERT(m_format->count != 0, "Format size is specified");
+		DrawElements(m_format->renderMode, m_format->count, m_format->type, *this);
 	}
 	void Draw(unsigned int count, unsigned int offset=0)
 	{
-		GLWRAP_ASSERT(m_format.renderMode != GL_NONE && m_format.type != GL_NONE, "Format is initialized");
-		GLWRAP_ASSERT(m_format.count == 0 || offset + count <= m_format.count, "Not drawing too much indices");
-		DrawElements(m_format.renderMode, count, m_format.type, *this, offset);
+		GLWRAP_ASSERT(m_format->renderMode != GL_NONE && m_format->type != GL_NONE, "Format is initialized");
+		GLWRAP_ASSERT(m_format->count == 0 || offset + count <= m_format->count, "Not drawing too much indices");
+		DrawElements(m_format->renderMode, count, m_format->type, *this, offset);
 	}
 
 	using BoundBuffer::Data;
-	IndexFormat Data(RenderMode mode, GLuint count, IndexType type, GLvoid* data, BufferUsage usage=GL_STATIC_DRAW)
+	void Data(RenderMode mode, GLuint count, IndexType type, GLvoid* data, BufferUsage usage=GL_STATIC_DRAW)
 	{
 		Data(data, count*getIndexTypeSize(type), usage);
-		m_format.renderMode = mode;
-		m_format.count = count;
-		m_format.type = type;
-		return m_format;
+		m_format->renderMode = mode;
+		m_format->count = count;
+		m_format->type = type;
 	}
 
-	IndexFormat getFormat() const { return m_format; }
+	IndexFormat getFormat() const { return *m_format; }
 private:
-	IndexFormat m_format;
+	IndexFormat *m_format;
 };
 
 // -------------
@@ -2659,21 +2658,30 @@ class IndexBuffer : public Buffer
 public:
 	IndexBuffer(const IndexFormat& format=IndexFormat())
 		: Buffer()
-		, m_format(format)
+		, m_format(new IndexFormat(format))
 	{ }
 	IndexBuffer(GLuint buffer, const IndexFormat& format = IndexFormat())
 		: Buffer(buffer)
-		, m_format(format)
+		, m_format(new IndexFormat(format))
 	{
 	}
 	void swap(IndexBuffer& b)
 	{
 		Buffer::swap(b);
 	}
+	void Delete()
+	{
+		Buffer::Delete();
+		if (m_format)
+		{
+			delete m_format;
+			m_format = nullptr;
+		}
+	}
 
 	BoundIndexBuffer Bind(BufferTarget target = GL_ELEMENT_ARRAY_BUFFER) const
 	{
-		return BoundIndexBuffer(Buffer::Bind(target), m_format);
+		return BoundIndexBuffer(Buffer::Bind(target), *m_format);
 	}
 	static void Unbind(BufferTarget target = GL_ELEMENT_ARRAY_BUFFER)
 	{
@@ -2682,11 +2690,19 @@ public:
 
 	void setFormat(const IndexFormat& format)
 	{
-		m_format = format;
+		if (m_format)
+		{
+			delete m_format;
+		}
+		m_format = new IndexFormat(format);
 	}
-	IndexFormat getFormat() const
+	const IndexFormat& getFormat() const
 	{
-		return m_format;
+		return *m_format;
+	}
+	IndexFormat& getFormat()
+	{
+		return *m_format;
 	}
 
 	static IndexBuffer Create(const IndexFormat& format = IndexFormat())
@@ -2696,7 +2712,7 @@ public:
 		return b;
 	}
 private:
-	IndexFormat m_format;
+	IndexFormat *m_format;
 };
 
 GLWRAP_MAKE_OCLASS_BEGIN(OIndexBuffer, IndexBuffer);
