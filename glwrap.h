@@ -7,6 +7,14 @@
 #include <limits>
 #include <type_traits>
 
+#ifndef GLWRAP_NO_MULTITHREAD
+#include <atomic>
+#endif
+
+#ifndef GLWRAP_NO_INIT_LIST
+#include <initializer_list>
+#endif
+
 #if defined(GLWRAP_ENABLE_ASSERTS) && !defined(GLWRAP_ASSERT_CALLBACK)
 #ifdef assert
 #define GLWRAP_OLD_ASSERT_DEFINE assert
@@ -2717,6 +2725,125 @@ private:
 
 GLWRAP_MAKE_OCLASS_BEGIN(OIndexBuffer, IndexBuffer);
 GLWRAP_MAKE_OCLASS_END();
+
+// --------------
+// | VertexFormat
+// --------------
+
+class VertexFormat
+{
+private:
+																				#ifndef GLWRAP_NO_MULTITHREAD
+	typedef std::atomic_uint32_t refcount_t;
+																				#else //GLWRAP_NO_MULTITHREAD
+	typedef uint32_t refcount_t;
+																				#endif//GLWRAP_NO_MULTITHREAD
+
+	struct FormatHeader
+	{
+		refcount_t refcount;
+		unsigned int count;
+	};
+
+	FormatHeader* getHeader() const { return (FormatHeader*)m_ptr; }
+	VertexAttribPointer *getAttribs() const { return (VertexAttribPointer*)((char*)m_ptr + sizeof(FormatHeader)); }
+public:
+	VertexFormat()
+		: m_ptr(nullptr)
+	{ }
+	VertexFormat(const VertexFormat& format)
+		: m_ptr(format.m_ptr)
+	{
+		++getHeader()->refcount;
+	}
+	VertexFormat(VertexFormat&& format)
+		: m_ptr(format.m_ptr)
+	{
+	}
+																				#ifndef GLWRAP_NO_INIT_LIST
+	VertexFormat(std::initializer_list<VertexAttribPointer> list)
+		: m_ptr(malloc(sizeof(FormatHeader) + list.size() * sizeof(VertexAttribPointer)))
+	{
+		getHeader()->count = list.size();
+		getHeader()->refcount = 1;
+		auto jt = getAttribs();
+		for (auto it = list.begin(), et = list.end(); it != et; ++it, ++jt)
+		{
+			*jt = *it;
+		}
+	}
+																				#endif//GLWRAP_NO_INIT_LIST
+	VertexFormat(VertexAttribPointer* begin, VertexAttribPointer *end)
+		: m_ptr(malloc(sizeof(FormatHeader)+(end - begin) * sizeof(VertexAttribPointer)))
+	{
+		getHeader()->count = end - begin;
+		getHeader()->refcount = 1;
+		memcpy(getAttribs(), begin, (end - begin) * sizeof(VertexAttribPointer));
+	}
+	void swap(VertexFormat& format)
+	{
+		std::swap(m_ptr, format.m_ptr);
+	}
+	VertexFormat& operator=(VertexFormat format)
+	{
+		swap(format);
+		return *this;
+	}
+	~VertexFormat()
+	{
+		if (m_ptr == nullptr) return;
+		if (--getHeader()->refcount == 0)
+		{
+			free(m_ptr);
+		}
+	}
+
+	const VertexAttribPointer& operator[](unsigned int index) const
+	{
+		GLWRAP_ASSERT(m_ptr != nullptr, "VertexFormat is initialized");
+		GLWRAP_ASSERT(index < getHeader()->count, "Index is in bounds of the header");
+
+		return getAttribs()[index];
+	}
+	VertexAttribPointer& operator[](unsigned int index)
+	{
+		GLWRAP_ASSERT(m_ptr != nullptr, "VertexFormat is initialized");
+		GLWRAP_ASSERT(index < getHeader()->count, "Index is in bounds of the header");
+
+		return getAttribs()[index];
+	}
+	
+	VertexAttribPointer *begin()
+	{
+		if (m_ptr == nullptr) return nullptr;
+		return getAttribs();
+	}
+
+	VertexAttribPointer *end()
+	{
+		if (m_ptr == nullptr) return nullptr;
+		return getAttribs() + getHeader()->count;
+	}
+
+	void Enable() const
+	{
+		for (VertexAttribPointer *it = getAttribs(), *et = it + getHeader()->count; it != et; ++it)
+		{
+			it->Enable();
+		}
+	}
+
+	void Disable() const
+	{
+		for (VertexAttribPointer *it = getAttribs(), *et = it + getHeader()->count; it != et; ++it)
+		{
+			it->Disable();
+		}
+	}
+
+private:
+	void *m_ptr;
+};
 
 }
 
