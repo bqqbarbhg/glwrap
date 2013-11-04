@@ -364,6 +364,11 @@ enum EnumFramebufferAttachment
 	DEPTH_STENCIL_ATTACHMENT = GL_DEPTH_STENCIL_ATTACHMENT,
 };
 
+enum EnumTimestamp
+{
+	TIMESTAMP = GL_TIMESTAMP,
+};
+
 enum EnumGlobalParamName
 {
 	ACTIVE_TEXTURE = GL_ACTIVE_TEXTURE,
@@ -503,7 +508,6 @@ enum EnumGlobalParamName
 	TEXTURE_BINDING_CUBE_MAP = GL_TEXTURE_BINDING_CUBE_MAP,
 	TEXTURE_BINDING_RECTANGLE = GL_TEXTURE_BINDING_RECTANGLE,
 	TEXTURE_COMPRESSION_HINT = GL_TEXTURE_COMPRESSION_HINT,
-	TIMESTAMP = GL_TIMESTAMP,
 	TRANSFORM_FEEDBACK_BUFFER_BINDING = GL_TRANSFORM_FEEDBACK_BUFFER_BINDING,
 	TRANSFORM_FEEDBACK_BUFFER_START = GL_TRANSFORM_FEEDBACK_BUFFER_START,
 	TRANSFORM_FEEDBACK_BUFFER_SIZE = GL_TRANSFORM_FEEDBACK_BUFFER_SIZE,
@@ -567,6 +571,15 @@ enum EnumClearMask
 	COLOR_BUFFER_BIT = GL_COLOR_BUFFER_BIT,
 	DEPTH_BUFFER_BIT = GL_DEPTH_BUFFER_BIT,
 	STENCIL_BUFFER_BIT = GL_STENCIL_BUFFER_BIT,
+};
+
+enum EnumQueryTarget
+{
+	SAMPLES_PASSED = GL_SAMPLES_PASSED,
+	ANY_SAMPLES_PASSED = GL_ANY_SAMPLES_PASSED,
+	PRIMITIVES_GENERATED = GL_PRIMITIVES_GENERATED,
+	TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN = GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN,
+	TIME_ELAPSED = GL_TIME_ELAPSED,
 };
 
 #define GLWRAP_ENUM_BEGIN(ClassName) class ClassName { private: GLenum m_value; \
@@ -688,6 +701,7 @@ GLWRAP_ENUM_END()
 
 GLWRAP_ENUM_BEGIN(GlobalParamName)
 GLWRAP_ENUM_ALLOW(GlobalParamName, EnumGlobalParamName)
+GLWRAP_ENUM_ALLOW(GlobalParamName, EnumTimestamp);
 GLWRAP_ENUM_END()
 
 GLWRAP_ENUM_BEGIN(TextureParamName)
@@ -700,6 +714,14 @@ GLWRAP_ENUM_END()
 
 GLWRAP_ENUM_BEGIN(ClearMask)
 GLWRAP_ENUM_ALLOW(ClearMask, EnumClearMask)
+GLWRAP_ENUM_END()
+
+GLWRAP_ENUM_BEGIN(QueryTarget)
+GLWRAP_ENUM_ALLOW(QueryTarget, EnumQueryTarget)
+GLWRAP_ENUM_END()
+
+GLWRAP_ENUM_BEGIN(QueryCounterTarget)
+GLWRAP_ENUM_ALLOW(QueryCounterTarget, EnumTimestamp)
 GLWRAP_ENUM_END()
 
 // -------
@@ -2523,6 +2545,106 @@ public:
 GLWRAP_MAKE_OCLASS_BEGIN(OFramebuffer, Framebuffer);
 GLWRAP_MAKE_OCLASS_END();
 
+class ActiveQuery
+{
+public:
+	ActiveQuery(QueryTarget target)
+		: m_target(target)
+	{ }
+
+	void End()
+	{
+		glEndQuery(m_target);
+	}
+
+private:
+	GLenum m_target;
+};
+
+class Query : public Handle
+{
+public:
+	Query()
+		: Handle()
+	{ }
+	explicit Query(GLuint handle)
+		: Handle(handle)
+	{
+		GLWRAP_TYPECHECK(glIsQuery, handle);
+	}
+	void swap(Query& q)
+	{
+		Handle::swap(q);
+	}
+	void Delete()
+	{
+		if (m_handle)
+		{
+			glDeleteQueries(1, &m_handle);
+			m_handle = 0;
+		}
+	}
+
+	ActiveQuery Begin(QueryTarget target)
+	{
+		glBeginQuery(target, m_handle);
+		return ActiveQuery(target);
+	}
+
+	void Counter(QueryCounterTarget target)
+	{
+		glQueryCounter(m_handle, target);
+	}
+
+	bool ResultAvailable()
+	{
+		GLint val;
+		glGetQueryObjectiv(m_handle, GL_QUERY_RESULT_AVAILABLE, &val);
+		return val != 0;
+	}
+
+	GLuint64 ResultI32()
+	{
+		GLint val;
+		glGetQueryObjectiv(m_handle, GL_QUERY_RESULT, &val);
+		return val;
+	}
+	GLuint64 ResultI64()
+	{
+		GLint64 val;
+		glGetQueryObjecti64v(m_handle, GL_QUERY_RESULT, &val);
+		return val;
+	}
+	GLuint64 ResultU32()
+	{
+		GLuint val;
+		glGetQueryObjectuiv(m_handle, GL_QUERY_RESULT, &val);
+		return val;
+	}
+	GLuint64 ResultU64()
+	{
+		GLuint64 val;
+		glGetQueryObjectui64v(m_handle, GL_QUERY_RESULT, &val);
+		return val;
+	}
+
+	void Gen()
+	{
+		GLWRAP_ASSERT(m_handle == 0, "Query is uninitialized");
+		glGenQueries(1, &m_handle);
+	}
+
+	static Query Create()
+	{
+		Query q;
+		q.Gen();
+		return q;
+	}
+};
+
+GLWRAP_MAKE_OCLASS_BEGIN(OQuery, Query);
+GLWRAP_MAKE_OCLASS_END();
+
 inline void DrawElements(RenderMode mode, GLsizei count, IndexType type, TargetedBoundBuffer<GL_ELEMENT_ARRAY_BUFFER> indexBuffer, unsigned int offset=0)
 {
 	GLWRAP_CHECK_ACTIVE_OUT(indexBuffer.isActive(GL_ELEMENT_ARRAY_BUFFER));
@@ -2868,6 +2990,7 @@ private:
 #undef GLWRAP_ENUM_ASSERT
 #undef GLWRAP_MOVE
 #ifdef GLWRAP_OLD_ASSERT_DEFINE
+#undef assert
 #define assert GLWRAP_OLD_ASSERT_DEFINE
 #undef GLWRAP_OLD_ASSERT_DEFINE
 #endif
